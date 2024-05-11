@@ -25,7 +25,7 @@ s.options.numInputBusChannels_(numChannels: 2);
 // SOUND 2: Lead synth
 (
 // Sound synthesis
-SynthDef(\sound, {
+SynthDef(\synth, {
 	|freq, vel, gate = 1, outBus, dry = 0.5|
 	var sig, mod, phase;
 
@@ -116,7 +116,7 @@ MIDIdef.noteOn(\playNote, {
 	// Adding Synth instance inside ~notes
 	~notes.put(
 		"Synth"++num,		// Synth instance name
-		Synth(\sound, [\freq: num.midicps, \vel: val.linexp(1, 127, 0.3, 1.0), \outBus: ~effectBus])	// Synth object
+		Synth(\synth, [\freq: num.midicps, \vel: val.linexp(1, 127, 0.3, 1.0), \outBus: ~effectBus])	// Synth object
 	);
 });
 
@@ -143,3 +143,86 @@ MIDIdef(\stopNote).permanent_(true);
 s.scope(rate: \audio, numChannels: 2);
 )
 
+
+
+
+
+
+
+// EXPERIMENT: DRUM SOUNDS
+
+(
+SynthDef(\kick, {
+	var sig;
+
+	sig = SinOsc.ar(
+		freq: 60 * EnvGen.kr(envelope: Env.asr(attackTime: 0.01, sustainLevel: 1.0, releaseTime: 0.2, curve: -3.0)),
+		mul: EnvGen.kr(envelope: Env.adsr(attackTime: 0.01, decayTime: 0.2, sustainLevel: 1.0, releaseTime: 0.5, curve: -3.0), doneAction: 2)
+	);
+
+	//sig = sig + WhiteNoise.ar(mul: 0.2 * EnvGen.kr(envelope: Env.asr(attackTime: 0.01, sustainLevel: 1.0, releaseTime: 0.2, curve: -3.0), doneAction: 2));
+
+	Out.ar(bus: [0,1], channelsArray: sig);
+}).add;
+)
+
+(
+SynthDef(\snare, {
+	var sig;
+
+	sig = LFTri.ar(
+		freq: 150,
+		mul: 0.5 * EnvGen.kr(
+			envelope: Env.adsr(attackTime: 0.01, decayTime: 0.5, sustainLevel: 1.0, releaseTime: 0.2),
+			gate: 1.0,
+			doneAction: 2
+		)
+	);
+
+	sig = sig + HPF.ar(
+		in: WhiteNoise.ar(
+			mul: EnvGen.kr(
+				envelope: Env.perc(attackTime: 0.01, releaseTime: 0.2, curve: -1.0),
+				gate: 1.0,
+				doneAction: 2
+			)
+		),
+		freq: 200;
+	);
+
+	Out.ar(bus: [0,1], channelsArray: sig);
+}).add;
+)
+
+(
+Routine({
+	loop({
+		Synth(\kick);
+		1.yield;
+	})
+}).play(TempoClock(95/60));
+)
+
+// EXPERIMENT ARPEGGIATOR
+
+(
+Routine({
+	loop({
+		a = Synth(\synth, [\freq: 60.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		1.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\synth, [\freq: 64.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		1.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\synth, [\freq: 67.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		1.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\synth, [\freq: 64.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		1.yield;
+		a.set(\gate, 0);
+	})
+}).play(TempoClock(140/60));
+)
