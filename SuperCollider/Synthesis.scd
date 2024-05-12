@@ -1,3 +1,4 @@
+(
 // Server boot
 Server.local.boot;
 
@@ -6,6 +7,7 @@ MIDIClient.init;
 
 // MIDI inputs connection
 MIDIIn.connectAll;
+)
 
 // MIDI debugging activation
 MIDIFunc.trace(true);
@@ -22,16 +24,13 @@ s.options.numInputBusChannels_(numChannels: 2);
 // Speakers calibration
 {PinkNoise.ar(mul: 1) ! 2}.play;
 
-// SOUND 2: Lead synth
+
+// SOUND SYNTHESIS FOR MIDI KEYBOARD
 (
 // Sound synthesis
 SynthDef(\synth, {
 	|freq, vel, gate = 1, outBus, dry = 0.5|
-	var sig, mod, phase;
-
-	// Modulation and additive noise
-	mod = SinOsc.kr(freq: 10, mul: 10);
-	phase = SinOsc.kr(freq: 0.5, mul: 0.0, add: 1.0);
+	var sig;
 
 	// Output signal definition (frequency decay on Note Off)
 	sig = Saw.ar(
@@ -53,10 +52,10 @@ SynthDef(\synth, {
 
 	// Stereo OUT (dry %)
 	sig = Pan2.ar(in: sig, pos: 0.0);
-	Out.ar(bus: 0, channelsArray: dry*sig);
+	Out.ar(bus: 0, channelsArray: dry * sig);
 
 	// FX parallel (wet %)
-	Out.ar(bus: outBus, channelsArray: (1.0-dry)*sig);
+	Out.ar(bus: outBus, channelsArray: (1.0 - dry)*sig);
 }).add;
 
 // Signal processing
@@ -143,51 +142,39 @@ MIDIdef(\stopNote).permanent_(true);
 s.scope(rate: \audio, numChannels: 2);
 )
 
-
-
-
-
-
-
-// EXPERIMENT: DRUM SOUNDS
+// SOUND SYNTHESIS FOR ARPEGGIATOR
 
 (
+// Drums sounds
 SynthDef(\kick, {
 	var sig;
 
 	sig = SinOsc.ar(
-		freq: 60 * EnvGen.kr(envelope: Env.asr(attackTime: 0.01, sustainLevel: 1.0, releaseTime: 0.2, curve: -3.0)),
-		mul: EnvGen.kr(envelope: Env.adsr(attackTime: 0.01, decayTime: 0.2, sustainLevel: 1.0, releaseTime: 0.5, curve: -3.0), doneAction: 2)
+		freq: 50 + 50 * EnvGen.kr(
+			envelope: Env.perc(attackTime: 0.0, releaseTime: 0.1, level: 1.0, curve: 'lin')
+		),
+		mul: EnvGen.kr(envelope: Env.linen(attackTime: 0.0, sustainTime: 0.05, releaseTime: 0.1, level: 1.0, curve: 'lin'))
 	);
 
-	//sig = sig + WhiteNoise.ar(mul: 0.2 * EnvGen.kr(envelope: Env.asr(attackTime: 0.01, sustainLevel: 1.0, releaseTime: 0.2, curve: -3.0), doneAction: 2));
+	sig = sig + WhiteNoise.ar(
+		mul: 0.1 * EnvGen.kr(envelope: Env.perc(attackTime: 0.0, releaseTime: 0.2, level: 1.0, curve: -2.0))
+	);
 
 	Out.ar(bus: [0,1], channelsArray: sig);
 }).add;
-)
 
-(
 SynthDef(\snare, {
 	var sig;
 
-	sig = LFTri.ar(
-		freq: 150,
-		mul: 0.5 * EnvGen.kr(
-			envelope: Env.adsr(attackTime: 0.01, decayTime: 0.5, sustainLevel: 1.0, releaseTime: 0.2),
-			gate: 1.0,
-			doneAction: 2
-		)
+	sig = SinOsc.ar(
+		freq: 170 * EnvGen.kr(
+			envelope: Env.perc(attackTime: 0.0, releaseTime: 0.5, level: 1.0, curve: 'lin')
+		),
+		mul: 0.5 * EnvGen.kr(envelope: Env.linen(attackTime: 0.0, sustainTime: 0.05, releaseTime: 0.1, level: 1.0, curve: 'lin'))
 	);
 
-	sig = sig + HPF.ar(
-		in: WhiteNoise.ar(
-			mul: EnvGen.kr(
-				envelope: Env.perc(attackTime: 0.01, releaseTime: 0.2, curve: -1.0),
-				gate: 1.0,
-				doneAction: 2
-			)
-		),
-		freq: 200;
+	sig = sig + WhiteNoise.ar(
+		mul: 0.5 *EnvGen.kr(envelope: Env.perc(attackTime: 0.0, releaseTime: 0.2, level: 1.0, curve: -2.0))
 	);
 
 	Out.ar(bus: [0,1], channelsArray: sig);
@@ -195,34 +182,59 @@ SynthDef(\snare, {
 )
 
 (
-Routine({
+// TO BE FIXED (like our mental health 💔)
+SynthDef(\bass, {
+	|note|
+	var sig;
+
+	sig = LFTri.ar(
+		freq: note.midicps,
+		mul: EnvGen.kr(envelope: Env.perc(releaseTime: 1.0, curve: -4.0))
+	);
+
+	Out.ar(bus: [0,1], channelsArray: sig);
+}).add;
+)
+
+(
+// Drum loop
+~bpm = 105;
+t = TempoClock(~bpm/60);
+
+~routineDrums = Routine({
 	loop({
 		Synth(\kick);
 		1.yield;
+
+		Synth(\snare);
+		1.yield;
+
+		Synth(\kick);
+		1.yield;
+
+		Synth(\snare);
+		0.5.yield;
+		Synth(\snare);
+		0.5.yield;
 	})
-}).play(TempoClock(95/60));
-)
+});
 
-// EXPERIMENT ARPEGGIATOR
-
-(
-Routine({
+~routineBass = Routine({
 	loop({
-		a = Synth(\synth, [\freq: 60.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		Synth(\bass, [\freq: 48]);
 		1.yield;
-		a.set(\gate, 0);
 
-		a = Synth(\synth, [\freq: 64.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		Synth(\bass, [\freq: 50]);
 		1.yield;
-		a.set(\gate, 0);
 
-		a = Synth(\synth, [\freq: 67.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		Synth(\bass, [\freq: 52]);
 		1.yield;
-		a.set(\gate, 0);
 
-		a = Synth(\synth, [\freq: 64.midicps, \vel: 1.0, \outBus: ~effectBus]);
+		Synth(\bass, [\freq: 48]);
 		1.yield;
-		a.set(\gate, 0);
 	})
-}).play(TempoClock(140/60));
+});
+
+~routineDrums.play(t);
+//~routineBass.play(t);
 )
