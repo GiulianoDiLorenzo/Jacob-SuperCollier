@@ -160,7 +160,8 @@ SynthDef(\kick, {
 		mul: 0.1 * EnvGen.kr(envelope: Env.perc(attackTime: 0.0, releaseTime: 0.2, level: 1.0, curve: -2.0))
 	);
 
-	Out.ar(bus: [0,1], channelsArray: sig);
+	Out.ar(bus: [0,1], channelsArray: 0.9*sig);
+	Out.ar(bus: ~effectBus, channelsArray: 0.1*sig);
 }).add;
 
 SynthDef(\snare, {
@@ -177,12 +178,11 @@ SynthDef(\snare, {
 		mul: 0.5 *EnvGen.kr(envelope: Env.perc(attackTime: 0.0, releaseTime: 0.2, level: 1.0, curve: -2.0))
 	);
 
-	Out.ar(bus: [0,1], channelsArray: sig);
+	Out.ar(bus: [0,1], channelsArray: 0.9*sig);
+	Out.ar(bus: ~effectBus, channelsArray: 0.1*sig);
 }).add;
-)
 
-(
-// TO BE FIXED (like our mental health 💔)
+// Bass sounds
 SynthDef(\bass, {
 	|note|
 	var sig;
@@ -193,6 +193,28 @@ SynthDef(\bass, {
 	);
 
 	Out.ar(bus: [0,1], channelsArray: sig);
+}).add;
+
+SynthDef(\bass2, {
+	|note, gate = 1|
+	var sig;
+
+	sig = LFTri.ar(
+		freq: note.midicps * EnvGen.kr(envelope: Env(levels: [0, 1], times: 0.1, curve: 'lin'))
+	);
+
+	sig = sig + SinOsc.ar(
+		freq: note.midicps/2,
+		mul: 0.5
+	);
+
+	sig = sig * EnvGen.kr(
+		envelope: Env.asr(attackTime: 0.01, sustainLevel: 1.0, releaseTime: 0.3, curve: -4.0),
+		gate: gate,
+		doneAction: 2
+	);
+
+	Out.ar(bus: [0,1], channelsArray: 0.5*sig)
 }).add;
 )
 
@@ -221,20 +243,18 @@ t = TempoClock(~bpm/60);
 
 ~routineBass = Routine({
 	loop({
-		Synth(\bass, [\freq: 48]);
-		1.yield;
+		a = Synth(\bass2, [\note, 40]);
+		2.yield;
+		a.set(\gate, 0);
 
-		Synth(\bass, [\freq: 50]);
-		1.yield;
+		1.5.yield;
 
-		Synth(\bass, [\freq: 52]);
-		1.yield;
-
-		Synth(\bass, [\freq: 48]);
-		1.yield;
+		a = Synth(\bass2, [\note, 47]);
+		0.5.yield;
+		a.set(\gate, 0);
 	})
 });
 
 ~routineDrums.play(t);
-//~routineBass.play(t);
+~routineBass.play(t);
 )
