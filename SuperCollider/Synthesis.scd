@@ -241,6 +241,7 @@ t = TempoClock(~bpm/60);
 	})
 });
 
+// Bass loop
 ~routineBass = Routine({
 	loop({
 		a = Synth(\bass2, [\note, 40]);
@@ -257,4 +258,21 @@ t = TempoClock(~bpm/60);
 
 ~routineDrums.play(t);
 ~routineBass.play(t);
+)
+
+// EXPERIMENT (NOT WORKING)
+
+(
+var array1 = ['k', 's', 'k', 's', 's'];
+var array2 = [1, 1, 1, 0.5, 0.5];
+
+array1.size.do { |i|
+    var drum = array1[i];
+    var dur = array2[i];
+
+    case(
+		{drum == 'k'}, {do({Synth(\kick); dur.yield;})},
+		{drum == 's'}, {do({Synth(\snare); dur.yield;})}
+	);
+};
 )
