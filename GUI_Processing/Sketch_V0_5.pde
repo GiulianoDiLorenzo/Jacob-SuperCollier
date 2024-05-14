@@ -7,7 +7,6 @@ import shapes3d.path.*;
 import shapes3d.utils.*;
 
 import apsync.*;
-
 import sprites.*;
 import sprites.maths.*;
 import sprites.utils.*;

@@ -130,9 +130,9 @@ public void panel1_Click4(GPanel source, GEvent event) { //_CODE_:WF_2_Display_p
   println("WF_2_Display_panel - GPanel >> GEvent." + event + " @ " + millis());
 } //_CODE_:WF_2_Display_panel:276233:
 
-public void textarea1_change1(GTextArea source, GEvent event) { //_CODE_:Credits_text:398566:
+public void textarea1_change1(GTextArea source, GEvent event) { //_CODE_:Credits_text:788940:
   println("Credits_text - GTextArea >> GEvent." + event + " @ " + millis());
-} //_CODE_:Credits_text:398566:
+} //_CODE_:Credits_text:788940:
 
 
 
@@ -145,6 +145,7 @@ public void createGUI(){
   surface.setTitle("Sketch Window");
   Knob_Panel = new GPanel(this, 0, 540, 200, 100, "Knobs Controls");
   Knob_Panel.setCollapsible(false);
+  Knob_Panel.setDraggable(false);
   Knob_Panel.setText("Knobs Controls");
   Knob_Panel.setOpaque(true);
   Knob_Panel.addEventHandler(this, "panel0_Click1");
@@ -362,6 +363,8 @@ public void createGUI(){
   labelTitle.setText("Jacob SuperCollier's amazing Plug-In");
   labelTitle.setOpaque(false);
   Slider_Panel = new GPanel(this, 205, 540, 200, 80, "Sliders");
+  Slider_Panel.setCollapsible(false);
+  Slider_Panel.setDraggable(false);
   Slider_Panel.setText("Sliders");
   Slider_Panel.setOpaque(true);
   Slider_Panel.addEventHandler(this, "panel1_Click2");
@@ -373,16 +376,20 @@ public void createGUI(){
   Panning.setOpaque(false);
   Panning.addEventHandler(this, "slider1_change2");
   Slider_Panel.addControl(Panning);
-  WF_Display_panel = new GPanel(this, 10, 220, 450, 240, "Show my Waveform");
-  WF_Display_panel.setText("Show my Waveform");
+  WF_Display_panel = new GPanel(this, 10, 220, 450, 240, "Show my Spectrogram");
+  WF_Display_panel.setCollapsible(false);
+  WF_Display_panel.setDraggable(false);
+  WF_Display_panel.setText("Show my Spectrogram");
   WF_Display_panel.setOpaque(true);
   WF_Display_panel.addEventHandler(this, "panel1_Click3");
   WF_2_Display_panel = new GPanel(this, 480, 60, 400, 360, "Insert plots here");
+  WF_2_Display_panel.setCollapsible(false);
+  WF_2_Display_panel.setDraggable(false);
   WF_2_Display_panel.setText("Insert plots here");
   WF_2_Display_panel.setOpaque(true);
   WF_2_Display_panel.addEventHandler(this, "panel1_Click4");
-  Credits_text = new GTextArea(this, 755, 560, 150, 80, G4P.SCROLLBARS_NONE);
-  Credits_text.setText("Credits : \n CAGNETTA Angelica \n DI LORENZO GIuliano \n MUGNAINI Nicola \n OUALI Ernest");
+  Credits_text = new GTextArea(this, 760, 570, 165, 80, G4P.SCROLLBARS_NONE);
+  Credits_text.setText("Credits : \n CAGNETTA Angelica \n DI LORENZO Giuliano \n MUGNAINI Nicola \n OUALI Ernest");
   Credits_text.setOpaque(false);
   Credits_text.addEventHandler(this, "textarea1_change1");
 }
