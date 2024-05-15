@@ -6,6 +6,14 @@
 #define A_Y A4
 #define A_Z A5
 
+// ACCELEROMETER
+float x, y, z;
+float sens = 1.5;
+int supply = 5;   // 5V voltage supply
+float voltage_1g = supply/sens;    // voltage value for 1g
+int adc_max = 1023;   // adc value for maximum voltage (5V)
+int adc_1g = adc_max*(voltage_1g/supply);
+
 void setup() {
   pinMode(A_H, INPUT);
   pinMode(A_X, INPUT);
@@ -18,79 +26,37 @@ void setup() {
 void loop() {
   Serial.println("***********************");
 
-  // buffers of 10 values from each sensor
-  int x[10], y[10], z[10];
-  
-  // min and max values of each buffer
-  int min_x= 0;
-  int max_x = 0;
-  int min_y = 0;
-  int max_y = 0;
-  int min_z = 0;
-  int max_z = 0;
+  Serial.print("Raw (accelerometer): ");
+  Serial.print(analogRead(A_X));
+  Serial.print(", ");
+  Serial.print(analogRead(A_Y));
+  Serial.print(", ");
+  Serial.println(analogRead(A_Z));
 
-  // gathering x, y and z values in the 10-entries arrays
-  for (int i=0; i<10; i++) {
-    x[i] = analogRead(A_X);
-    if (min_x > x[i]) {
-      min_x = x[i];
-    }
-    if (max_x < x[i]) {
-      max_x = x[i];
-    }
-    delay(2);
+  x = (analogRead(A_X) * (adc_1g / adc_max)/9.81);
+  delay(2);
+  y = (analogRead(A_Y) * (adc_1g / adc_max)/9.81);
+  delay(2);
+  z = (analogRead(A_Z) * (adc_1g / adc_max)/9.81);
+  delay(2);
 
-    y[i] = analogRead(A_X);
-    if (min_y > y[i]) {
-      min_y = y[i];
-    }
-    if (max_y < y[i]) {
-      max_y = y[i];
-    }
-    delay(2);
-
-    z[i] = analogRead(A_X);
-    if (min_z > z[i]) {
-      min_z = z[i];
-    }
-    if (max_z < z[i]) {
-      max_z = z[i];
-    }
-    delay(2);
-  }
-
-  // computing the average value
-  int avg_x, avg_y, avg_z;
-
-  avg_x = (max_x - min_x) / 2;
-  avg_y = (max_y - min_y) / 2;
-  avg_z = (max_z - min_z) / 2;
-
-  Serial.print("Average x: ");
-  Serial.print(avg_x);
-  Serial.print(" Average y: ");
-  Serial.print(avg_y);
-  Serial.print(" Average z: ");
-  Serial.println(avg_z);
-
-  delay(10);
-
-  // computing acceleration
-  int acc;
-  acc = sqrt(avg_x^2 + avg_y^2 + avg_z^2);
-  Serial.print(" Acceleration: ");
-  Serial.println(acc);
+  Serial.print("Acceleration (m/s^2): ");
+  Serial.print(x);
+  Serial.print(", ");
+  Serial.print(y);
+  Serial.print(", ");
+  Serial.println(z);
 
   // capturing heart rate duty cycle (ms)
   int sensorValue;
   sensorValue = analogRead(A1);
 
   if (sensorValue) {
-    Serial.print(" Heart rate sensor: ");
+    Serial.print("Heart rate sensor: ");
     Serial.println(sensorValue);
   }
   else {
-    Serial.println(" Data not valid!");
+    Serial.println("Data not valid!");
   }
 
   delay(1000);
