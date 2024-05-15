@@ -1,7 +1,3 @@
-import netP5.*;
-import oscP5.*;
-
-
 
 import shapes3d.*;
 import shapes3d.contour.*;
@@ -22,60 +18,87 @@ import g4p_controls.*;
 // You can remove the PeasyCam import if you are not using
 // the GViewPeasyCam control or the PeasyCam library.
 import peasy.*;
- 
+
+import controlP5.*;
+import oscP5.*; //OSC messages library
+import netP5.*; //Network addressing
+
+
+
 OscP5 oscP5;
-NetAddress myRemoteLocation;
-float y;
-float gravity = 0.1;
-float velocity = 0;
-float bounceFactor = -0.7;
-//PImage Micky;
+NetAddress myRemoteLocation; 
+ControlP5 cp5; 
+
+
+//float mainKnobVol;
 
 public void setup(){
   size(905, 640, JAVA2D);
   createGUI();
-  customGUI();
+  //customGUI();
+  
+    
+
   // Place your setup code here
-  oscP5 = new OscP5(this, 8000);
-  y = 10 + 220 / 2;
-  //Micky = loadImage("Micky.jpeg.jpeg");
+  
+  oscP5 = new OscP5(this, 12000);    //public OscP5(Object theParent, int theReceiveAtPort)
+      //12 000 representing the port number on the remote machine to which the OSC messages should be sent
+  
+  myRemoteLocation = new NetAddress("127.0.0.1", 57120);  //address where we send the osc messages, "127.0.0.1" as local work here
+      //127.0.0.1 being the "localhost"
+      
+  //cp5 = new ControlP5(this);
   
 }
 
 public void draw(){
   background(230);
+  controlEvent();
   
-   velocity += gravity;
-  y += velocity;
-  imageMode(CENTER);
- // image(Micky, 320,180);
   
-   if (y > 220 + 240) {
-    y = 220 + 240;
-    velocity *= bounceFactor;  // Inverte la velocità quando tocca il "terreno"
-  }
-  if (y < 220) {
-    y = 220;
-    velocity *= bounceFactor;  // Inverte la velocità quando tocca il "soffitto"
-  }
-  
-  // Disegna la pallina
-  stroke(0);
-  imageMode(CENTER);
-  ellipse(width / 2, y, 50, 50);
-  //image(Micky, 20, 20, 50, 50);
   
 }
-void oscEvent(OscMessage theOscMessage) {
-  if (theOscMessage.checkAddrPattern("/bounce")) {
-    int sensorValue = theOscMessage.get(0).intValue();
-    
-    // Mappa il valore del sensore a un valore di velocità
-    velocity = map(sensorValue, 0, 1023, -10, 10);
-  }
-}
+
 // Use this method to add additional statements
 // to customise the GUI controls
 public void customGUI(){
-
 }
+
+
+
+
+
+public void controlEvent(){
+  //Controls which event happens in the processing code
+  OscMessage msg = new OscMessage("/knobs"); //message name
+  msg.add( knobVol );
+  msg.add( knobClipp );
+  msg.add( knobRev );
+  
+  // Send the message to the remote location (loopback address)
+  oscP5.send(msg, myRemoteLocation);
+  msg.print();
+  
+  OscMessage msgMods = new OscMessage("/Modulation_mapping"); //message name
+  msgMods.add( modX );
+  msgMods.add( modY );
+  msgMods.add( modZ );
+  msgMods.add( modHR );
+  
+  oscP5.send(msgMods, myRemoteLocation);
+  msgMods.print();
+  
+  
+  OscMessage msgSlider = new OscMessage("/Slider"); //message name
+  msgSlider.add( sliderVal );
+
+  
+  oscP5.send(msgSlider, myRemoteLocation);
+  msgSlider.print();
+  
+ 
+
+  
+}
+
+  
