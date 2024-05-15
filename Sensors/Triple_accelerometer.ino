@@ -1,11 +1,17 @@
 #include<math.h>
 #include<stdio.h>
+//#include "DFRobot_Heartrate.h"
 
+//#define heartratePin A1
 #define A_X 3
 #define A_Y 4
 #define A_Z 5
 
+// DFRobot_Heartrate heartrate(ANALOG_MODE);
+
 int x, y, z;
+uint8_t rateValue;
+int sensorValue;
 
 void setup() {
   // put your setup code here, to run once:
@@ -14,6 +20,7 @@ void setup() {
   pinMode(A_Z,INPUT);
 
   Serial.begin(9600);
+  // Serial.begin(115200);
 }
 
 void loop() {
@@ -29,5 +36,10 @@ void loop() {
   Serial.print(" z: ");
   Serial.print(z);
 
-  delay(5000);
+  sensorValue = analogRead(A1);
+  
+  Serial.println(" Heart rate sensor: ");
+  Serial.println(sensorValue);
+
+  delay(1000);
 }
