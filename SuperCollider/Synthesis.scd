@@ -29,7 +29,7 @@ s.options.numInputBusChannels_(numChannels: 2);
 (
 // Sound synthesis
 SynthDef(\synth, {
-	|freq, vel, gate = 1, outBus, dry = 0.5|
+	|freq, vel, gate = 1, outBus, dry = 0.8|
 	var sig;
 
 	// Output signal definition (frequency decay on Note Off)
@@ -45,9 +45,16 @@ SynthDef(\synth, {
 
 	// Envelope ADSR (gate = 0 closes the Synth)
 	sig = sig * EnvGen.kr(
-		envelope: Env.adsr(attackTime: 0.1, decayTime: 0.2, sustainLevel: 0.8, releaseTime: 0.5),
+		envelope: Env.adsr(attackTime: 0.05, decayTime: 0.2, sustainLevel: 1.0, releaseTime: 0.5),
 		gate: gate,
 		doneAction: 2
+	);
+
+	// Pink noise (percussive attack)
+	sig = sig + PinkNoise.ar(
+		mul: 0.5 * EnvGen.kr(
+			envelope: Env.perc(attackTime: 0.01, releaseTime: 0.08, level: 1.0, curve: -4.0);
+		);
 	);
 
 	// Stereo OUT (dry %)
@@ -137,16 +144,10 @@ MIDIdef.noteOff(\stopNote, {
 // Making MIDI functions immune to CTRL+. interrupt
 MIDIdef(\playNote).permanent_(true);
 MIDIdef(\stopNote).permanent_(true);
-
-// Stethoscope
-s.scope(rate: \audio, numChannels: 2);
 )
 
 // SOUND SYNTHESIS FOR ARPEGGIATOR
-
 (
-//~effectBus = Bus.audio(server: s, numChannels: 2);
-
 // Drums sounds
 SynthDef(\kick, {
 	|volume = 1.0|
@@ -217,10 +218,10 @@ SynthDef(\pick, {
 
 	sig = LFTri.ar(
 		freq: note.midicps,
-		mul: EnvGen.kr(envelope: Env.perc(attackTime: 0.01, releaseTime: 1.0, curve: -4.0))
+		mul: EnvGen.kr(envelope: Env.perc(attackTime: 0.03, releaseTime: 1.0, curve: -4.0))
 	);
 
-	sig = HPF.ar(in: sig, freq: 250);
+	sig = HPF.ar(in: sig, freq: 500);
 
 	Out.ar(bus: [0,1], channelsArray: volume*sig);
 	Out.ar(bus: [0,1], channelsArray: (0.5*volume)*sig);
@@ -355,6 +356,9 @@ t = TempoClock(~bpm/60);
 ~chorusBass.play(t, quant: 4);
 ~chorusHarm.play(t, quant: 4);
 )
+
+// Stethoscope
+s.scope(rate: \audio, numChannels: 2);
 
 // EXPERIMENT (NOT WORKING)
 
