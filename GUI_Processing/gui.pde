@@ -13,22 +13,17 @@
  * Do not rename this tab!
  * =========================================================
  */
-float knobVol, knobClipp, knobRev;
-
-float sliderVal;
-
-int  modX, modY, modZ, modHR;
-
+ 
 
 public void panel0_Click1(GPanel source, GEvent event) { //_CODE_:Knob_Panel:977156:
   println("panel1 - GPanel >> GEvent." + event + " @ " + millis());
+
 } //_CODE_:Knob_Panel:977156:
 
 public void knobVol_event(GKnob source, GEvent event) { //_CODE_:Volume_knob:300969:
   knobVol = source.getValueF();
   println("Volume - GKnob >> GEvent." + event + " @ " + millis() + " Value: " + knobVol);
 } //_CODE_:Volume_knob:300969:
-
 
 public void knobClipp_event(GKnob source, GEvent event) { //_CODE_:Clipping:241030:
   knobClipp = source.getValueF();
@@ -172,14 +167,12 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  
   Knob_Panel = new GPanel(this, 0, 540, 200, 100, "Knobs Controls");
   Knob_Panel.setCollapsible(false);
   Knob_Panel.setDraggable(false);
   Knob_Panel.setText("Knobs Controls");
   Knob_Panel.setOpaque(true);
   Knob_Panel.addEventHandler(this, "panel0_Click1");
-  
   Volume_knob = new GKnob(this, 0, 40, 60, 70, 0.8);
   Volume_knob.setTurnRange(110, 70);
   Volume_knob.setTurnMode(GKnob.CTRL_HORIZONTAL);
@@ -192,7 +185,6 @@ public void createGUI(){
   Volume_knob.setShowTicks(true);
   Volume_knob.setOpaque(false);
   Volume_knob.addEventHandler(this, "knobVol_event");
-  
   Clipping = new GKnob(this, 60, 40, 60, 70, 0.8);
   Clipping.setTurnRange(110, 70);
   Clipping.setTurnMode(GKnob.CTRL_HORIZONTAL);
@@ -205,7 +197,6 @@ public void createGUI(){
   Clipping.setShowTicks(true);
   Clipping.setOpaque(false);
   Clipping.addEventHandler(this, "knobClipp_event");
-  
   Reverb = new GKnob(this, 120, 40, 60, 70, 0.8);
   Reverb.setTurnRange(110, 70);
   Reverb.setTurnMode(GKnob.CTRL_HORIZONTAL);
@@ -218,7 +209,6 @@ public void createGUI(){
   Reverb.setShowTicks(true);
   Reverb.setOpaque(false);
   Reverb.addEventHandler(this, "knobRev_event");
-  
   label_volume_knob = new GLabel(this, 2, 20, 50, 20);
   label_volume_knob.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label_volume_knob.setText("Volume");
@@ -231,36 +221,30 @@ public void createGUI(){
   label_reverb_knob.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label_reverb_knob.setText("Reverb");
   label_reverb_knob.setOpaque(false);
-  
   Knob_Panel.addControl(Volume_knob);
   Knob_Panel.addControl(Clipping);
   Knob_Panel.addControl(Reverb);
   Knob_Panel.addControl(label_volume_knob);
   Knob_Panel.addControl(label_clipping_knob);
   Knob_Panel.addControl(label_reverb_knob);
-  
   Mapping_panel = new GPanel(this, 10, 60, 451, 140, "Input events mapping");
   Mapping_panel.setCollapsible(false);
   Mapping_panel.setDraggable(false);
   Mapping_panel.setText("Input events mapping");
   Mapping_panel.setOpaque(true);
   Mapping_panel.addEventHandler(this, "panel1_Click1");
-  
   panel_X_speed = new GPanel(this, 2, 25, 111, 110, "X-speed");
   panel_X_speed.setCollapsible(false);
   panel_X_speed.setDraggable(false);
   panel_X_speed.setText("X-speed");
   panel_X_speed.setOpaque(true);
   panel_X_speed.addEventHandler(this, "panel2_Click1");
-  
   X_speed_group = new GToggleGroup();
-  
   Vol_X_speed = new GOption(this, 0, 25, 80, 20);
   Vol_X_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   Vol_X_speed.setText("Volume");
   Vol_X_speed.setOpaque(false);
   Vol_X_speed.addEventHandler(this, "Vol_X_event");
-  
   Reverb_X_speed = new GOption(this, 0, 45, 80, 20);
   Reverb_X_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   Reverb_X_speed.setText("Reverb");
@@ -417,7 +401,7 @@ public void createGUI(){
   Panning.addEventHandler(this, "slider_event");
   Slider_Panel.addControl(Panning);
   WF_Display_panel = new GPanel(this, 10, 220, 450, 240, "Show my Spectrogram");
-  WF_Display_panel.setCollapsible(false);
+  WF_Display_panel.setCollapsed(true);
   WF_Display_panel.setDraggable(false);
   WF_Display_panel.setText("Show my Spectrogram");
   WF_Display_panel.setOpaque(true);
