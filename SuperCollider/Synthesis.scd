@@ -35,12 +35,12 @@ s.scope(rate: \audio, numChannels: 4);
 (
 // Sound synthesis
 SynthDef(\synth, {
-	|freq, vel, gate = 1, outBus = 0, fxBus, dry = 0.7|
+	|freq, vel, detune = 0.8, gate = 1, outBus = 0, fxBus, dry = 0.7|
 	var sig;
 
-	// Output signal definition (frequency decay on Note Off)
+	// Output signal definition (FM and frequency decay on Note Off "commented")
 	sig = Saw.ar(
-		freq: freq,
+		freq: freq + SinOsc.kr(freq: detune, mul: 5),
 		//freq: freq * EnvGen.kr(
 		//	envelope: Env.asr(attackTime: 0.05, sustainLevel: 1.0, releaseTime: 0.5, curve: 1.0),
 		//	gate: gate,
