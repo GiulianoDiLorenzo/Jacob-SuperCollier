@@ -13,7 +13,6 @@
  * Do not rename this tab!
  * =========================================================
  */
- 
 
 public void panel0_Click1(GPanel source, GEvent event) { //_CODE_:Knob_Panel:977156:
   println("panel1 - GPanel >> GEvent." + event + " @ " + millis());
@@ -43,26 +42,26 @@ public void panel2_Click1(GPanel source, GEvent event) { //_CODE_:panel_X_speed:
   println("panel2 - GPanel >> GEvent." + event + " @ " + millis());
 } //_CODE_:panel_X_speed:865444:
 
-public void Vol_X_event(GOption source, GEvent event) { //_CODE_:Vol_X_speed:585929:
+public void Panning_X_position_event(GOption source, GEvent event) { //_CODE_:Panning_X_position:585929:
   println("Vol_mod_1 - GOption >> GEvent." + event + " @ " + millis());
   modX = 0;
   
-} //_CODE_:Vol_X_speed:585929:
+} //_CODE_:Panning_X_position:585929:
 
-public void Rev_X_event(GOption source, GEvent event) { //_CODE_:Reverb_X_speed:920265:
+public void Mix_X_position_event(GOption source, GEvent event) { //_CODE_:Mix_X_position:920265:
   println("Reverb_mod_1 - GOption >> GEvent." + event + " @ " + millis());
   modX = 1;
-} //_CODE_:Reverb_X_speed:920265:
+} //_CODE_:Mix_X_position:920265:
 
-public void Clipp_X_event(GOption source, GEvent event) { //_CODE_:Clipp_X_speed:497020:
+public void Room_X_position_event(GOption source, GEvent event) { //_CODE_:Room_X_position:497020:
   println("Clipp_mod_1 - GOption >> GEvent." + event + " @ " + millis());
   modX = 2;
-} //_CODE_:Clipp_X_speed:497020:
+} //_CODE_:Room_X_position:497020:
 
-public void Other_X_event(GOption source, GEvent event) { //_CODE_:Other_X_speed:608371:
+public void Vol_X_position_event(GOption source, GEvent event) { //_CODE_:Vol_X_position:608371:
   println("Other_mod_1 - GOption >> GEvent." + event + " @ " + millis());;
   modX = 3;
-} //_CODE_:Other_X_speed:608371:
+} //_CODE_:Vol_X_position:608371:
 
 public void panel3_Click1(GPanel source, GEvent event) { //_CODE_:panel_Y_speed:205923:
   println("panel3 - GPanel >> GEvent." + event + " @ " + millis());
@@ -145,10 +144,6 @@ public void slider_event(GSlider source, GEvent event) { //_CODE_:Panning:788127
   sliderVal = source.getValueF();
   println("Panning - GSlider >> GEvent." + event + " @ " + millis() + " Value: " + sliderVal);
 } //_CODE_:Panning:788127:
-
-public void panel1_Click3(GPanel source, GEvent event) { //_CODE_:WF_Display_panel:449017:
-  println("WF_Display_panel - GPanel >> GEvent." + event + " @ " + millis());
-} //_CODE_:WF_Display_panel:449017:
 
 public void panel1_Click4(GPanel source, GEvent event) { //_CODE_:WF_2_Display_panel:276233:
   println("WF_2_Display_panel - GPanel >> GEvent." + event + " @ " + millis());
@@ -233,42 +228,42 @@ public void createGUI(){
   Mapping_panel.setText("Input events mapping");
   Mapping_panel.setOpaque(true);
   Mapping_panel.addEventHandler(this, "panel1_Click1");
-  panel_X_speed = new GPanel(this, 2, 25, 111, 110, "X-speed");
+  panel_X_speed = new GPanel(this, 2, 25, 111, 110, "X-position");
   panel_X_speed.setCollapsible(false);
   panel_X_speed.setDraggable(false);
-  panel_X_speed.setText("X-speed");
+  panel_X_speed.setText("X-position");
   panel_X_speed.setOpaque(true);
   panel_X_speed.addEventHandler(this, "panel2_Click1");
   X_speed_group = new GToggleGroup();
-  Vol_X_speed = new GOption(this, 0, 25, 80, 20);
-  Vol_X_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Vol_X_speed.setText("Volume");
-  Vol_X_speed.setOpaque(false);
-  Vol_X_speed.addEventHandler(this, "Vol_X_event");
-  Reverb_X_speed = new GOption(this, 0, 45, 80, 20);
-  Reverb_X_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Reverb_X_speed.setText("Reverb");
-  Reverb_X_speed.setOpaque(false);
-  Reverb_X_speed.addEventHandler(this, "Rev_X_event");
-  Clipp_X_speed = new GOption(this, 0, 65, 80, 20);
-  Clipp_X_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Clipp_X_speed.setText("Clipping");
-  Clipp_X_speed.setOpaque(false);
-  Clipp_X_speed.addEventHandler(this, "Clipp_X_event");
-  Other_X_speed = new GOption(this, 0, 85, 80, 20);
-  Other_X_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Other_X_speed.setText("option text");
-  Other_X_speed.setOpaque(false);
-  Other_X_speed.addEventHandler(this, "Other_X_event");
-  X_speed_group.addControl(Vol_X_speed);
-  Vol_X_speed.setSelected(true);
-  panel_X_speed.addControl(Vol_X_speed);
-  X_speed_group.addControl(Reverb_X_speed);
-  panel_X_speed.addControl(Reverb_X_speed);
-  X_speed_group.addControl(Clipp_X_speed);
-  panel_X_speed.addControl(Clipp_X_speed);
-  X_speed_group.addControl(Other_X_speed);
-  panel_X_speed.addControl(Other_X_speed);
+  Panning_X_position = new GOption(this, 0, 25, 80, 20);
+  Panning_X_position.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Panning_X_position.setText("Panning");
+  Panning_X_position.setOpaque(false);
+  Panning_X_position.addEventHandler(this, "Panning_X_position_event");
+  Mix_X_position = new GOption(this, 0, 45, 80, 20);
+  Mix_X_position.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Mix_X_position.setText("Mix");
+  Mix_X_position.setOpaque(false);
+  Mix_X_position.addEventHandler(this, "Mix_X_position_event");
+  Room_X_position = new GOption(this, 0, 65, 80, 20);
+  Room_X_position.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Room_X_position.setText("Room");
+  Room_X_position.setOpaque(false);
+  Room_X_position.addEventHandler(this, "Room_X_position_event");
+  Vol_X_position = new GOption(this, 0, 85, 80, 20);
+  Vol_X_position.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Vol_X_position.setText("Volume");
+  Vol_X_position.setOpaque(false);
+  Vol_X_position.addEventHandler(this, "Vol_X_position_event");
+  X_speed_group.addControl(Panning_X_position);
+  Panning_X_position.setSelected(true);
+  panel_X_speed.addControl(Panning_X_position);
+  X_speed_group.addControl(Mix_X_position);
+  panel_X_speed.addControl(Mix_X_position);
+  X_speed_group.addControl(Room_X_position);
+  panel_X_speed.addControl(Room_X_position);
+  X_speed_group.addControl(Vol_X_position);
+  panel_X_speed.addControl(Vol_X_position);
   panel_Y_speed = new GPanel(this, 114, 25, 111, 110, "Y-speed");
   panel_Y_speed.setCollapsible(false);
   panel_Y_speed.setDraggable(false);
@@ -400,12 +395,6 @@ public void createGUI(){
   Panning.setOpaque(false);
   Panning.addEventHandler(this, "slider_event");
   Slider_Panel.addControl(Panning);
-  WF_Display_panel = new GPanel(this, 10, 220, 450, 240, "Show my Spectrogram");
-  WF_Display_panel.setCollapsed(true);
-  WF_Display_panel.setDraggable(false);
-  WF_Display_panel.setText("Show my Spectrogram");
-  WF_Display_panel.setOpaque(true);
-  WF_Display_panel.addEventHandler(this, "panel1_Click3");
   WF_2_Display_panel = new GPanel(this, 480, 60, 400, 360, "Insert plots here");
   WF_2_Display_panel.setCollapsible(false);
   WF_2_Display_panel.setDraggable(false);
@@ -430,10 +419,10 @@ GLabel label_reverb_knob;
 GPanel Mapping_panel; 
 GPanel panel_X_speed; 
 GToggleGroup X_speed_group; 
-GOption Vol_X_speed; 
-GOption Reverb_X_speed; 
-GOption Clipp_X_speed; 
-GOption Other_X_speed; 
+GOption Panning_X_position; 
+GOption Mix_X_position; 
+GOption Room_X_position; 
+GOption Vol_X_position; 
 GPanel panel_Y_speed; 
 GToggleGroup Y_speed_group; 
 GOption Vol_Y_speed; 
@@ -455,6 +444,5 @@ GOption Other_HR;
 GLabel labelTitle; 
 GPanel Slider_Panel; 
 GSlider Panning; 
-GPanel WF_Display_panel; 
 GPanel WF_2_Display_panel; 
 GTextArea Credits_text; 
