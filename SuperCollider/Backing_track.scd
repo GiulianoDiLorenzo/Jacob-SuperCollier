@@ -16,7 +16,7 @@ Server.local.reboot;
 {PinkNoise.ar(mul: 1) ! 2}.play;
 
 // Stethoscope
-s.scope(rate: \audio, numChannels: 4);
+s.scope(rate: \audio, numChannels: 2);
 
 // SOUND SYNTHESIS FOR ARPEGGIATOR
 (
@@ -37,7 +37,6 @@ SynthDef(\kick, {
 	);
 
 	Out.ar(bus: [0,1], channelsArray: (0.9*volume)*sig);
-	Out.ar(bus: ~effectBus, channelsArray: (0.1*volume)*sig);
 }).add;
 
 SynthDef(\snare, {
@@ -56,7 +55,6 @@ SynthDef(\snare, {
 	);
 
 	Out.ar(bus: [0,1], channelsArray: (0.9*volume)*sig);
-	Out.ar(bus: ~effectBus, channelsArray: (0.1*volume)*sig);
 }).add;
 
 // Bass sound
@@ -70,7 +68,7 @@ SynthDef(\bass, {
 
 	sig = sig + SinOsc.ar(
 		freq: note.midicps/2,
-		mul: 0.5
+		mul: 0.8
 	);
 
 	sig = sig * EnvGen.kr(
@@ -80,32 +78,110 @@ SynthDef(\bass, {
 	);
 
 	Out.ar(bus: [0,1], channelsArray: 0.5*sig);
-	Out.ar(bus: ~effectBus, channelsArray: 0.1*sig);
 }).add;
 
-// Synth sound
+// Lead sound
 SynthDef(\pick, {
-	|note, volume = 0.4|
+	|note, volume = 0.6|
 	var sig;
 
 	sig = LFTri.ar(
 		freq: note.midicps,
-		mul: EnvGen.kr(envelope: Env.perc(attackTime: 0.03, releaseTime: 1.0, curve: -4.0))
+		mul: EnvGen.kr(envelope: Env.perc(attackTime: 0.01, releaseTime: 0.8, curve: -4.0))
+	);
+
+	sig = sig + PinkNoise.ar(
+		mul: 0.01 * EnvGen.kr(envelope: Env.perc(attackTime: 0.0, releaseTime: 0.2, level: 1.0, curve: -2.0))
 	);
 
 	sig = HPF.ar(in: sig, freq: 500);
 
 	Out.ar(bus: [0,1], channelsArray: volume*sig);
-	Out.ar(bus: [0,1], channelsArray: (0.5*volume)*sig);
+}).add;
+
+// Pad sound
+SynthDef(\pad, {
+	|note, detune = 0.8, gate = 1, volume = 0.1|
+	var sig;
+
+	sig = Saw.ar(
+		freq: [note.midicps, note.midicps + SinOsc.kr(freq: detune, mul: 2)]
+	);
+
+	sig = sig * EnvGen.kr(
+		envelope: Env.adsr(attackTime: 0.05, decayTime: 0.2, sustainLevel: 1.0, releaseTime: 0.5),
+		gate: gate,
+		doneAction: 2
+	);
+
+	sig = sig + PinkNoise.ar(
+		mul: 0.5 * EnvGen.kr(
+			envelope: Env.perc(attackTime: 0.01, releaseTime: 0.08, level: 1.0, curve: -4.0);
+		);
+	);
+
+	Out.ar(bus: [0, 1], channelsArray: volume*sig);
 }).add;
 )
 
 (
-// Drum loop
+// BPM definition
 ~bpm = 85;
 t = TempoClock(~bpm/60);
 
-~chorusDrums = Routine({
+// Song
+~drums = {
+	// VERSE
+	1.do({
+		Synth(\kick);
+		1.yield;
+
+		Synth(\snare);
+		0.5.yield;
+
+		Synth(\kick);
+		0.5.yield;
+		Synth(\kick);
+		1.yield;
+
+		Synth(\snare);
+		1.yield;
+	});
+
+	7.do({
+		Synth(\kick);
+		1.yield;
+
+		Synth(\snare);
+		0.5.yield;
+
+		Synth(\kick);
+		0.5.yield;
+		Synth(\kick);
+		1.yield;
+
+		Synth(\snare);
+		1.yield;
+	});
+
+	// CHANGE
+	6.do({
+		Synth(\kick);
+		1.yield;
+
+		Synth(\snare);
+		0.5.yield;
+
+		Synth(\kick);
+		0.5.yield;
+		Synth(\kick);
+		1.yield;
+
+		Synth(\snare);
+		1.yield;
+	});
+
+	// CHORUS
 	8.do({
 		Synth(\kick);
 		1.yield;
@@ -120,11 +196,58 @@ t = TempoClock(~bpm/60);
 
 		Synth(\snare);
 		1.yield;
-	})
-});
+	});
+}.r;
 
-// Bass loop
-~chorusBass = Routine({
+~bass = {
+	// VERSE
+	4.yield;
+
+	1.do({
+		a = Synth(\bass, [\note, 38]);
+		7.5.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\bass, [\note, 45]);
+		0.5.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\bass, [\note, 35]);
+		6.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\bass, [\note, 33]);
+		2.yield;
+		a.set(\gate, 0);
+	});
+
+	1.do({
+		a = Synth(\bass, [\note, 38]);
+		7.5.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\bass, [\note, 45]);
+		0.5.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\bass, [\note, 35]);
+		4.yield;
+		a.set(\gate, 0);
+	});
+
+	// CHANGE
+	2.do({
+		a = Synth(\bass, [\note, 40]);
+		2.yield;
+		a.set(\gate, 0);
+
+		a = Synth(\bass, [\note, 33]);
+		6.yield;
+		a.set(\gate, 0);
+	});
+
+	// CHORUS
+	8.yield;
 	2.do({
 		a = Synth(\bass, [\note, 43]);
 		4.yield;
@@ -149,10 +272,52 @@ t = TempoClock(~bpm/60);
 		a = Synth(\bass, [\note, 45]);
 		2.5.yield;
 		a.set(\gate, 0);
-	})
-});
+	});
+}.r;
 
-~chorusHarm = Routine({
+~lead = {
+	// VERSE
+	32.yield;
+
+	// CHANGE
+	2.do({
+		Synth(\pick, [\note, 50]);
+		0.5.yield;
+		Synth(\pick, [\note, 50]);
+		0.5.yield;
+		Synth(\pick, [\note, 50]);
+		0.5.yield;
+		Synth(\pick, [\note, 50]);
+		0.5.yield;
+
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+		Synth(\pick, [\note, 49]);
+		0.5.yield;
+	});
+
+	// CHORUS
+	8.yield;
 	2.do({
 		Synth(\pick, [\note, 59]);
 		0.5.yield;
@@ -205,45 +370,87 @@ t = TempoClock(~bpm/60);
 		Synth(\pick, [\note, 59]);
 		0.5.yield;
 
-		Synth(\pick, [\note, 62]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
-		Synth(\pick, [\note, 62]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
-		Synth(\pick, [\note, 62]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
-		Synth(\pick, [\note, 61]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
-		Synth(\pick, [\note, 61]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
-		Synth(\pick, [\note, 61]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
-		Synth(\pick, [\note, 61]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
-		Synth(\pick, [\note, 61]);
+		Synth(\pick, [\note, 59]);
 		0.5.yield;
+	});
+}.r;
+
+~pad = {
+	// VERSE
+	4.yield;
+
+	1.do({
+		b = Synth(\pad, [\note, 54]);
+		8.yield;
+		b.set(\gate, 0);
+
+		b = Synth(\pad, [\note, 50]);
+		6.yield;
+		b.set(\gate, 0);
+
+		b = Synth(\pad, [\note, 52]);
+		2.yield;
+		b.set(\gate, 0);
+	});
+
+	1.do({
+		b = Synth(\pad, [\note, 54]);
+		8.yield;
+		b.set(\gate, 0);
+
+		b = Synth(\pad, [\note, 50]);
+		4.yield;
+		b.set(\gate, 0);
+	});
+
+	// CHANGE
+	2.do({
+		b = Synth(\pad, [\note, 50]);
+		2.yield;
+		b.set(\gate, 0);
+
+		b = Synth(\pad, [\note, 49]);
+		6.yield;
+		b.set(\gate, 0);
+	});
+
+	// CHORUS
+	8.yield;
+	2.do({
+		b = Synth(\pad, [\note, 62]);
+		4.yield;
+		b.set(\gate, 0);
+
+		b = Synth(\pad, [\note, 66]);
+		1.5.yield;
+		b.set(\gate, 0);
+
+		b = Synth(\pad, [\note, 61]);
+		2.5.yield;
+		b.set(\gate, 0);
+
+		b = Synth(\pad, [\note, 62]);
+		8.yield;
+		b.set(\gate, 0);
 	})
-});
+}.r;
 
-~chorusDrums.play(t, quant: 4);
-~chorusBass.play(t, quant: 4);
-~chorusHarm.play(t, quant: 4);
+~drums.play(t, quant: 4);
+~bass.play(t, quant: 4);
+~lead.play(t, quant: 4);
+~pad.play(t, quant: 4);
 )
-
-
-// EXPERIMENT (NOT WORKING)
-
-(
-var array1 = ['k', 's', 'k', 's', 's'];
-var array2 = [1, 1, 1, 0.5, 0.5];
-
-array1.size.do { |i|
-    var drum = array1[i];
-    var dur = array2[i];
-
-    case(
-		{drum == 'k'}, {do({Synth(\kick); dur.yield;})},
-		{drum == 's'}, {do({Synth(\snare); dur.yield;})}
-	);
-};
-)
-
