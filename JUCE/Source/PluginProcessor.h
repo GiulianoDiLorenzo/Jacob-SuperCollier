@@ -54,8 +54,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
-
+    
     // AudioProcessValueTreeState class declaration for implementing Editor <-> Processor
     juce::AudioProcessorValueTreeState apvts;
 
@@ -66,10 +65,8 @@ public:
     
 private:
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
-
+    
     // Filters declaration
-    //juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Filter<float>> filter;
     juce::dsp::Chorus<float> chorus;
     juce::dsp::Phaser<float> phaser;
     juce::dsp::Panner<float> panner;

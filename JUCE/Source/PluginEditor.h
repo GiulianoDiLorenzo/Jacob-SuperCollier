@@ -30,7 +30,6 @@ private:
     EffectsAudioProcessor& audioProcessor;
     
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
     
     // Sliders declaration
     juce::Slider sliderChorusRate;

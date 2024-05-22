@@ -21,13 +21,11 @@ EffectsAudioProcessor::EffectsAudioProcessor()
                      #endif
                        )
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
-
+    
     // Instatiation of the AudioProcessorValueTreeState in the constructor
     , apvts(*this, nullptr, "Parameters", createParameters())
 
     // Instatiation of the chorus in the constructor
-    //, filter(juce::dsp::IIR::Coefficients<float>::makeLowPass(44100, 20000.f, 0.1))     // sample_rate, frequency, Q_factor
     , chorus()
 
     // Instatiation of the phaser in the constructor
@@ -114,7 +112,6 @@ void EffectsAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     // initialisation that you need..
     
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
     
     // DSP chorus preparation with ProcessSpec component
     lastSampleRate = sampleRate;
@@ -197,8 +194,7 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     }
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
-
+    
     // Input AudioBlock buffer
     juce::dsp::AudioBlock <float> block(buffer);    // AudioBlock component for processing the input buffer
 
@@ -218,7 +214,6 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     float panValue = *apvts.getRawParameterValue("ID_PannerValue");
 
     // Updating the chorus state
-    //filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, par1, par2);
     chorus.setRate(chorusRate);
     chorus.setDepth(chorusDepth);
     chorus.setCentreDelay(chorusCentreDelay);
@@ -278,23 +273,22 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Giuliano Di Lorenzo
-// 
+
 // Definition and linking of parameters
 juce::AudioProcessorValueTreeState::ParameterLayout EffectsAudioProcessor::createParameters()
 {
     std::vector <std::unique_ptr <juce::RangedAudioParameter>> parameters;
 
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusRate", "Chorus Rate", 0.0, 100.0, 1.0));     // ID, name, min_value, max_value, default_value
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusRate", "Chorus Rate", 0.0f, 20.0f, 1.0f));     // ID, name, min_value, max_value, default_value
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusDepth", "Chorus Depth", 0.0f, 1.0f, 0.5f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusCentreDelay", "Chorus Centre Delay", 1.0, 100.0, 50.0));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusFeedback", "Chorus Feedback", -1.0f, 1.0f, 0.0f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusMix", "Chorus Mix", 0.0f, 1.0f, 0.5f));
     
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserRate", "Phaser Rate", 0.0f, 100.0f, 1.5f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserDepth", "Phaser Depth", 0.0f, 1.0f, 0.8f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserCentreFrequency", "Phaser Centre Frequency", 0.0f, 10000.0f, 200.0f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserFeedback", "Phaser Feedback", -1.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserRate", "Phaser Rate", 0.0f, 15.0f, 1.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserDepth", "Phaser Depth", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserCentreFrequency", "Phaser Centre Frequency", 0.0f, 5000.0f, 200.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserFeedback", "Phaser Feedback", -1.0f, 1.0f, 0.0f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserMix", "Phaser Mix", 0.0f, 1.0f, 0.5f));
     
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PannerValue", "Pan", -1.0f, 1.0f, 0.0f));

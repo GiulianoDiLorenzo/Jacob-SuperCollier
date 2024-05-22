@@ -18,12 +18,11 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     setSize(900, 600);
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
     
     // Sliders and labels description for parameter 1
     sliderChorusRate.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);             // SliderStyle component
     sliderChorusRate.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 100, 20);          // TextEntryBoxPosition component, read-only boolean, width, height
-    sliderChorusRate.setRange(0.0, 100.0, 1.0);     // min, max, interval
+    sliderChorusRate.setRange(0.0, 20.0, 0.1);      // min, max, interval
     addAndMakeVisible(sliderChorusRate);            // making sliderChorusRate visible
     labelChorusRate.setText("Chorus Rate (Hz)", juce::dontSendNotification);            // label text, NotificationType component
     addAndMakeVisible(labelChorusRate);             // making label 1 visible
@@ -57,15 +56,15 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     sliderChorusMix.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 100, 20);
     sliderChorusMix.setRange(0.0, 1.0, 0.1);
     addAndMakeVisible(sliderChorusMix);
-    labelChorusMix.setText("Chorus Mix", juce::dontSendNotification);
+    labelChorusMix.setText("Chorus Mix (%)", juce::dontSendNotification);
     addAndMakeVisible(labelChorusMix);
 
     // Sliders and labels description for parameter 6
     sliderPhaserRate.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     sliderPhaserRate.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 100, 20);
-    sliderPhaserRate.setRange(0.0, 100.0, 0.1);
+    sliderPhaserRate.setRange(0.0, 20.0, 0.1);
     addAndMakeVisible(sliderPhaserRate);
-    labelPhaserRate.setText("Phaser Rate", juce::dontSendNotification);
+    labelPhaserRate.setText("Phaser Rate (Hz)", juce::dontSendNotification);
     addAndMakeVisible(labelPhaserRate);
 
     // Sliders and labels description for parameter 7
@@ -79,9 +78,9 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     // Sliders and labels description for parameter 8
     sliderPhaserCentreFrequency.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     sliderPhaserCentreFrequency.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 100, 20);
-    sliderPhaserCentreFrequency.setRange(0.0, 10000.0, 10.0);
+    sliderPhaserCentreFrequency.setRange(0.0, 5000.0, 10.0);
     addAndMakeVisible(sliderPhaserCentreFrequency);
-    labelPhaserCentreFrequency.setText("Phaser Centre Frequency", juce::dontSendNotification);
+    labelPhaserCentreFrequency.setText("Phaser Centre Frequency (Hz)", juce::dontSendNotification);
     addAndMakeVisible(labelPhaserCentreFrequency);
 
     // Sliders and labels description for parameter 9
@@ -97,7 +96,7 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     sliderPhaserMix.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 100, 20);
     sliderPhaserMix.setRange(0.0, 100.0, 0.1);
     addAndMakeVisible(sliderPhaserMix);
-    labelPhaserMix.setText("Phaser Mix", juce::dontSendNotification);
+    labelPhaserMix.setText("Phaser Mix (%)", juce::dontSendNotification);
     addAndMakeVisible(labelPhaserMix);
 
     // Sliders and labels description for parameter 11
@@ -147,41 +146,40 @@ void EffectsAudioProcessorEditor::resized()
     // subcomponents in your editor..
     
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // Giuliano Di Lorenzo
     
     // Specifying all GUI components location
-    sliderChorusRate.setBounds(10, 80, 100, 100);       // setBounds needs x_position, y_position, width, height
-    labelChorusRate.setBounds(10, 50, 130, 20);
+    labelChorusRate.setBounds(5, 50, 150, 20);         // setBounds needs x_position, y_position, width, height  
+    sliderChorusRate.setBounds(10, 80, 100, 100);
 
+    labelChorusDepth.setBounds(155, 50, 150, 20); 
     sliderChorusDepth.setBounds(150, 80, 100, 100);
-    labelChorusDepth.setBounds(150, 50, 130, 20);
 
+    labelChorusCentreDelay.setBounds(275, 50, 150, 20);
     sliderChorusCentreDelay.setBounds(300, 80, 100, 100);
-    labelChorusCentreDelay.setBounds(300, 50, 130, 20);
 
+    labelChorusFeedback.setBounds(445, 50, 150, 20);
     sliderChorusFeedback.setBounds(450, 80, 100, 100);
-    labelChorusFeedback.setBounds(450, 50, 130, 20);
 
+    labelChorusMix.setBounds(600, 50, 150, 20);
     sliderChorusMix.setBounds(600, 80, 100, 100);
-    labelChorusMix.setBounds(600, 50, 130, 20);
 
+    labelPhaserRate.setBounds(5, 220, 150, 20);
     sliderPhaserRate.setBounds(10, 250, 100, 100);
-    labelPhaserRate.setBounds(10, 220, 130, 20);
 
+    labelPhaserDepth.setBounds(155, 220, 150, 20);
     sliderPhaserDepth.setBounds(150, 250, 100, 100);
-    labelPhaserDepth.setBounds(150, 220, 130, 20);
 
+    labelPhaserCentreFrequency.setBounds(275, 220, 150, 20);
     sliderPhaserCentreFrequency.setBounds(300, 250, 100, 100);
-    labelPhaserCentreFrequency.setBounds(300, 220, 130, 20);
 
+    labelPhaserFeedback.setBounds(445, 220, 150, 20);
     sliderPhaserFeedback.setBounds(450, 250, 100, 100);
-    labelPhaserFeedback.setBounds(450, 220, 130, 20);
 
+    labelPhaserMix.setBounds(600, 220, 150, 20);
     sliderPhaserMix.setBounds(600, 250, 100, 100);
-    labelPhaserMix.setBounds(600, 220, 130, 20);
 
+    labelPannerValue.setBounds(45, 370, 150, 20);
     sliderPannerValue.setBounds(10, 400, 100, 100);
-    labelPannerValue.setBounds(10, 370, 130, 20);
-    
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
