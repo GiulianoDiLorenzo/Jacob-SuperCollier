@@ -1,22 +1,8 @@
-(
-// Server boot
-Server.local.boot;
-
 // MIDI devices recognition
 MIDIClient.init;
 
 // MIDI inputs connection
 MIDIIn.connectAll;
-
-// Hardware INPUT configuration
-s.options.numInputBusChannels_(numChannels: 0);
-
-// Hardware OUTPUT configuration
-s.options.numOutputBusChannels_(numChannels: 2);
-
-// Server reboot
-Server.local.reboot;
-)
 
 // MIDI debugging activation
 MIDIFunc.trace(true);
@@ -28,8 +14,10 @@ MIDIFunc.trace(false);
 {PinkNoise.ar(mul: 1) ! 2}.play;
 
 // Stethoscope
-s.scope(rate: \audio, numChannels: 4);
+s.scope(rate: \audio, numChannels: 2);
 
+// Output device specification for JUCE plugin
+o.outDevice = "ASIO : Hi-Fi Cable Output";
 
 // SOUND SYNTHESIS FOR MIDI KEYBOARD
 (
@@ -108,16 +96,12 @@ SynthDef(\FX, {
 	Out.ar(bus: outBus, channelsArray: sig);
 }).add;
 
-// Output bus (for VST plugin)
-~vstBus = Bus.audio(server: s, numChannels: 2);
-//~vstBus.index;
-
 // Parallel bus
 ~effectBus = Bus.audio(server: s, numChannels: 2);
 //~effectBus.index;
 
 // Signal processing path
-~effectSynth = Synth(\FX, args: [\inBus: ~effectBus, \outBus, ~vstBus]);
+~effectSynth = Synth(\FX, args: [\inBus: ~effectBus]);
 
 // Dictionary definition of all Synth instances
 ~notes = Dictionary.new(n: 0);
@@ -132,7 +116,7 @@ MIDIdef.noteOn(\playNote, {
 	// Adding Synth instance inside ~notes
 	~notes.put(
 		"Synth"++num,		// Synth instance name
-		Synth(\synth, [\freq: num.midicps, \vel: val.linexp(1, 127, 0.3, 1.0), \outBus, ~vstBus, \fxBus: ~effectBus])	// Synth object
+		Synth(\synth, [\freq: num.midicps, \vel: val.linexp(1, 127, 0.3, 1.0), \fxBus: ~effectBus])	// Synth object
 	);
 });
 
@@ -154,5 +138,4 @@ MIDIdef.noteOff(\stopNote, {
 // Making MIDI functions immune to CTRL+. interrupt
 MIDIdef(\playNote).permanent_(true);
 MIDIdef(\stopNote).permanent_(true);
-
 )
