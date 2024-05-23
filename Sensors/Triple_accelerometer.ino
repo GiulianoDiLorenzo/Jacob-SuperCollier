@@ -1,63 +1,49 @@
 #include<math.h>
-#include<stdio.h>
+//#include<stdio.h>
+#include<Arduino.h>
+#include "AcceleroMMA7361.h"
 
-#define A_H A1
 #define A_X A3
 #define A_Y A4
 #define A_Z A5
 
-// ACCELEROMETER
-float x, y, z;
-float sens = 1.5;
-int supply = 5;   // 5V voltage supply
-float voltage_1g = supply/sens;    // voltage value for 1g
-int adc_max = 1023;   // adc value for maximum voltage (5V)
-int adc_1g = adc_max*(voltage_1g/supply);
+AcceleroMMA7361 acc;
 
 void setup() {
-  pinMode(A_H, INPUT);
   pinMode(A_X, INPUT);
   pinMode(A_Y, INPUT);
   pinMode(A_Z, INPUT);
 
   Serial.begin(9600);   // serial transmission bitrate
+
+  acc.begin(13, 12, 11, 10, A_X, A_Y, A_Z);
+  acc.setARefVoltage(5);  // Set the reference voltage to 3.3V
+  acc.setSensitivity(HIGH);  // Set sensitivity to 1.5g (LOW for 6g)
+  acc.calibrate();
 }
 
 void loop() {
   Serial.println("***********************");
-
-  Serial.print("Raw (accelerometer): ");
-  Serial.print(analogRead(A_X));
+  Serial.print("LIBRARY (raw): ");
+  Serial.print(acc.getXRaw());
   Serial.print(", ");
-  Serial.print(analogRead(A_Y));
+  Serial.print(acc.getYRaw());
   Serial.print(", ");
-  Serial.println(analogRead(A_Z));
-
-  x = (analogRead(A_X) * (adc_1g / adc_max)/9.81);
-  delay(2);
-  y = (analogRead(A_Y) * (adc_1g / adc_max)/9.81);
-  delay(2);
-  z = (analogRead(A_Z) * (adc_1g / adc_max)/9.81);
-  delay(2);
-
-  Serial.print("Acceleration (m/s^2): ");
-  Serial.print(x);
+  Serial.println(acc.getZRaw());
+ 
+  Serial.print("LIBRARY (volt): ");
+  Serial.print((float) acc.getXVolt()/1000);
   Serial.print(", ");
-  Serial.print(y);
+  Serial.print((float) acc.getYVolt()/1000);
   Serial.print(", ");
-  Serial.println(z);
+  Serial.println((float) acc.getZVolt()/1000);
 
-  // capturing heart rate duty cycle (ms)
-  int sensorValue;
-  sensorValue = analogRead(A1);
-
-  if (sensorValue) {
-    Serial.print("Heart rate sensor: ");
-    Serial.println(sensorValue);
-  }
-  else {
-    Serial.println("Data not valid!");
-  }
+  Serial.print("LIBRARY (degrees): ");
+  Serial.print(acc.getXAccel());
+  Serial.print(", ");
+  Serial.print(acc.getYAccel());
+  Serial.print(", ");
+  Serial.println(acc.getZAccel());
 
   delay(1000);
 }
