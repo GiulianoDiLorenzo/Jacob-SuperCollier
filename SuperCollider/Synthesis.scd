@@ -139,3 +139,18 @@ MIDIdef.noteOff(\stopNote, {
 MIDIdef(\playNote).permanent_(true);
 MIDIdef(\stopNote).permanent_(true);
 )
+
+(
+// OSC
+var processingAdd;
+processingAdd = NetAddr.localAddr;
+
+OSCdef(\receiver, {
+	|msg, time, addr, port|
+
+	("OSC incoming message: " ++ msg).postln;
+	("Coming from address " ++ addr ++ " and port " ++ port).postln;
+
+}, '/Modulation_mapping');
+
+)
