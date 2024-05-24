@@ -15,6 +15,12 @@
 /**
 */
 class EffectsAudioProcessorEditor  : public juce::AudioProcessorEditor
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    // OSCReceiver inheritances
+    , private OSCReceiver, private OSCReceiver::ListenerWithOSCAddress<OSCReceiver::MessageLoopCallback>
+
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 {
 public:
     EffectsAudioProcessorEditor (EffectsAudioProcessor&);
@@ -61,7 +67,6 @@ private:
 
     juce::Label labelPannerValue;
 
-
     // Attachments for linking GUI components to Processor's parameters
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderChorusRateAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderChorusDepthAttachment;
@@ -76,7 +81,13 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderPhaserMixAttachment;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderPannerValueAttachment;
-    
+   
+    // OSC receiver
+    DatagramSocket ds;
+
+    void showConnectionErrorMessage(const String& messageText);
+    void oscMessageReceived(const OSCMessage& message) override;    // virtual function from ListenerWithOSCAddress
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EffectsAudioProcessorEditor)

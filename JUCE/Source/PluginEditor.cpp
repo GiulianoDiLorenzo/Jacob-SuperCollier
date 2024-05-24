@@ -122,6 +122,14 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     
     sliderPannerValueAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PannerValue", sliderPannerValue);
 
+    // OSC listeners
+    ds.bindToPort(57109, "127.0.0.1");      // UDP port and IP address
+    if (!connectToSocket(ds))
+        showConnectionErrorMessage("Error");
+
+    // Example
+    addListener(this, "/reverb/dry");       // listener
+    
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
 
@@ -183,3 +191,20 @@ void EffectsAudioProcessorEditor::resized()
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+// User-defined method to respond to incoming OSC messages
+
+void EffectsAudioProcessorEditor::oscMessageReceived(const OSCMessage& message)
+{
+    // Example
+    if (message.getAddressPattern() == "/reverb/dry")
+    {
+        drySlider.setValue(jlimit(0.0f, 1.0f, message[0].getFloat32()));
+        processor.set_dry(drySlider.getValue());
+    }
+    
+}
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
