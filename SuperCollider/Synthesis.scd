@@ -151,6 +151,15 @@ OSCdef(\receiver, {
 	("OSC incoming message: " ++ msg).postln;
 	("Coming from address " ++ addr ++ " and port " ++ port).postln;
 
+	("Panning: " ++ msg[0]).postln;
+	("Volume: " ++ msg[1]).postln;
+	("Mix: " ++ msg[2]).postln;
+	("Room: " ++ msg[3]).postln;
+	// Filter freq in JUCE
+	("Pitch shift: " ++ msg[5]).postln;
+	// Phaser rate in JUCE
+	("Reverb decay: " ++ msg[7]).postln;
+
 }, '/Modulation_mapping');
 
 )
