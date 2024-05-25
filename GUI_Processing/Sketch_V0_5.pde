@@ -33,7 +33,7 @@ Serial serialPort;
 //=======================//
 // Variables to store the OSC Messages from Arduino
 float accXInput, accYInput, accZInput, HRInput;
-float timeStep = 0.200; //[s]
+float timeStep = 0.200; // [s] MATCHING WITH ARDUINO'S timeStep
 
 
 
@@ -88,12 +88,14 @@ float max_cut_off_freq; // [Hz]
 // Modulation effects values to communicate to SC and/or JUCE
 float panning, volume, mix, room, filter_freq, pitch_shift, phaser_period, rev_decay;
 
+ArrayList<Integer> list = new ArrayList<Integer>();
+
 public void setup(){
   size(905, 640, JAVA2D);  
   // Position the canvas on the screen (x, y)
   createGUI(); 
   
-  serialPort = new Serial(this, "COM9", 9600);
+  serialPort = new Serial(this, "COM6", 9600);      // INSERT YOUR COM FOR ARDUINO
 
   oscP5 = new OscP5(this, 12000);    //public OscP5(Object theParent, int theReceiveAtPort)
       //12 000 representing the port number on the remote machine to which the OSC messages should be sent
@@ -127,7 +129,7 @@ public void setup(){
   x_off_d = ( l + x_off )  / 2;        
   y_off_d = ( w + 2*y_off )  / 2;      
   radius = 10;                         
-  x = x_off_d;      
+  x = x_off_d;
   y = y_off_d;
   z_off = 1.3; //[m]
   z = z_off + 1.5;
@@ -151,6 +153,20 @@ public void draw(){
   controlEvent();
  
   harvestSerial();
+  setNan();
+  
+  if (list.get(0) == 0 || list.get(1) == 0) {
+    panning = Float.NaN;
+  }
+  if (list.get(0) == 1 || list.get(1) == 1) {
+    mix = Float.NaN;
+  }
+  if (list.get(0) == 2 || list.get(1) == 2) {
+    room = Float.NaN;
+  }
+  if (list.get(0) == 3 || list.get(1) == 3) {
+    volume = Float.NaN;
+  }
   
   
   //Draw the canvas
@@ -166,14 +182,14 @@ public void draw(){
   fill(255); //White
   
   // Temporary - Update the position of the ball
-  speedX = ( accXInput - 1.59) * timeStep;
+  speedX = ( accXInput ) * timeStep;
   x += speedX * timeStep;
-  y += ( accYInput - 1.73 ) * (timeStep*timeStep);
+  y += ( accYInput  ) * (timeStep*timeStep);
   
   // Temporary - Check for collisions with the walls
   if (x + radius >= l + x_off)      {x = l + x_off - radius;}
   else if (x - radius <= x_off )    {x = x_off + radius;}
-  else if (y + radius >= y_off + w) {y = y_off + w - radius;}
+  if (y + radius >= y_off + w)      {y = y_off + w - radius;}
   else if (y - radius <= y_off)     {y = y_off + radius;}
   
   
@@ -213,17 +229,17 @@ public void controlEvent(){
   //msgSlider.print(); 
   
   
-  OscMessage msgModValue = new OscMessage("/Efffects_Values"); //message name
+  OscMessage msgModValue = new OscMessage("/Effects_Values"); //message name
   msgModValue.add( panning );
-  msgModValue.add( volume );
   msgModValue.add( mix );
   msgModValue.add( room );
+  msgModValue.add( volume );
   msgModValue.add( filter_freq );
   msgModValue.add( pitch_shift );
   msgModValue.add( phaser_period );
   msgModValue.add( rev_decay );
   oscP5.send(msgModValue, myRemoteLocation);
-  //msgModValue.print();
+  msgModValue.print();
 }
 
 void change_X_pos_mapping(){
@@ -250,8 +266,8 @@ void change_X_pos_mapping(){
     //println("room = " + room);
   }
   else if (modX == 3){
-      a_vol = 20 / l;
-      b_vol = -10 -20*x_off/l;
+      a_vol = - 20 / l;
+      b_vol = 20*x_off/l;
       volume = a_vol*x + b_vol;
       //println("volume = " + volume + "dB");
     }
@@ -284,7 +300,7 @@ void change_Y_pos_mapping(){
   }
   else if (modY == 3){
       a_vol =   - 20 / w;
-      b_vol = 10 + 20*y_off/w;
+      b_vol = 20*y_off/w;
       volume = a_vol*y + b_vol;
       //println("volume = " + volume + " dB");
     }
@@ -348,29 +364,53 @@ void change_HR_mapping(){
 void harvestSerial(){
   if (serialPort.available() > 0) {
     String data = serialPort.readStringUntil('\n');
+    
+    println("data:" + data);
+    
     if (data != null) {
       // Split the received string into accelerometer and heart rate values
-      String[] values = data.trim().split(":");
-      if (values.length == 2) {
-        if (values[0].equals("AccX")) {
-          accXInput = float(values[1]);
-        }
-        else if (values[0].equals("AccY")) {
-          accYInput = float(values[1]);
-        }
-        else if (values[0].equals("AccZ")) {
-          accZInput = float(values[1]);
-        }
-        else if (values[0].equals("HR")) {
-          HRInput = float(values[1]);
-        }
+      String[] values = data.trim().split(",");
+      
+      /*
+      println("values length: " + values.length);
+      println("values[0]: " + values[0]);
+      println("values[1]: " + values[1]);
+      println("values[2]: " + values[2]);
+      println("values[3]: " + values[3]);
+      */
+      if (values.length == 4) {
+        accXInput = float(values[0]);
+        accYInput = float(values[1]);
+        accZInput = float(values[2]);
+        HRInput = float(values[3]);
       }
     }
   }
-  
+  /*
   println("AccX: " + accXInput);
   println("AccY: " + accYInput);
   println("AccZ: " + accZInput);
   println("HR: " + HRInput);
   println();
+*/
+}
+
+void setNan() {
+  list.clear();
+  
+  list.add(0);
+  list.add(1);
+  list.add(2);
+  list.add(3);
+  
+  if (list.contains(modX)) {
+    list.remove(Integer.valueOf(modX));
+  }
+  
+  if (list.contains(modY)) {
+    list.remove(Integer.valueOf(modY));
+  }
+  
+  print("list: " + list);
+  
 }

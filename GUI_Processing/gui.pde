@@ -14,13 +14,6 @@
  * =========================================================
  */
 
-
-//You might want to add a method to handle GOption events syntax is
-//public void handleToggleControlEvents(GToggleControl option, GEvent event
-
-
-
-
 public void panel0_Click1(GPanel source, GEvent event) { //_CODE_:Knob_Panel:977156:
   println("panel1 - GPanel >> GEvent." + event + " @ " + millis());
 
