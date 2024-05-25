@@ -145,8 +145,8 @@ MIDIdef(\stopNote).permanent_(true);
 
 (
 // OSC
-var processingAdd;
-processingAdd = NetAddr.localAddr;
+//var processingAdd;
+//processingAdd = NetAddr("127.0.0.1", 53398);
 
 OSCdef.freeAll;
 
@@ -156,44 +156,55 @@ OSCdef(\receiver, {
 	("OSC incoming message: " ++ msg).postln;
 	("Coming from address " ++ addr ++ " and port " ++ port).postln;
 
-	("Panning: " ++ msg[0]).postln;
-	~notes.keysValuesDo{
-		|key, value|
+	if (msg[1].isNaN == false){
+		("Panning: " ++ msg[1]).postln;
 
-		value.set(\pan, msg[0]);
 	};
+	//~notes.keysValuesDo{
+	//	|key, value|
+	//
+	//	value.set(\pan, msg[1]);
+	//};
 
-	("Volume: " ++ msg[1]).postln;  // in [-10, 10] dB
-	~notes.keysValuesDo{
-		|key, value|
+	if (msg[2].isNaN == false){
+		("Mix: " ++ msg[2]).postln;
 
-		value.set(\volume, msg[1].linexp(-10, 10, 0.0, 1.0));
 	};
+	//~notes.keysValuesDo{
+	//	|key, value|
+	//
+	//	value.set(\mix, msg[2]);
+	//};
 
-	("Mix: " ++ msg[2]).postln;
-	~notes.keysValuesDo{
-		|key, value|
-
-		value.set(\mix, msg[2]);
+	if (msg[3].isNaN == false){
+		("Room: " ++ msg[3]).postln;
 	};
+	//~effectSynth.set(\room, msg[3]);
 
-	("Room: " ++ msg[3]).postln;
-	~effectSynth.set(\room, msg[3]);
+	if (msg[4].isNaN == false){
+		("Volume: " ++ msg[4]).postln;
+
+	};
+	//~notes.keysValuesDo{
+	//	|key, value|
+	//
+	//	value.set(\volume, msg[4]);
+	//};
 
 	// Filter freq (chorus rate) in JUCE
 
-	("Pitch shift: " ++ msg[5]).postln;  // in semitones
-	~notes.keysValuesDo{
-		|key, value|
-
-		value.set(\note, value.get(\note)+msg[5]);
-	};
+	("Pitch shift: " ++ msg[6]).postln;  // in semitones
+	//~notes.keysValuesDo{
+	//	|key, value|
+	//
+	//	value.set(\note, value.get(\note)+msg[6]);
+	//};
 
 	// Phaser rate in JUCE
 
-	("Reverb decay: " ++ msg[7]).postln; // in ms (pre-delay?)
-	~effectSynth.set(\preDelay, msg[7]);
+	("Reverb decay: " ++ msg[8]).postln; // in ms (pre-delay?)
+	//~effectSynth.set(\preDelay, msg[8]);
 
-}, '/Modulation_mapping', processingAdd);
+}, '/Effects_Values');
 
 )
