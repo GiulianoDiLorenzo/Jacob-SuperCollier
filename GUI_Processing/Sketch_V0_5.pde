@@ -32,7 +32,8 @@ Serial serialPort;
 
 //=======================//
 // Variables to store the OSC Messages from Arduino
-float ArdaccX, ArdaccY, ArdaccZ, ArdHR;
+float accXInput, accYInput, accZInput, HRInput;
+float timeStep = 0.200; //[s]
 
 
 
@@ -94,7 +95,7 @@ public void setup(){
   
   serialPort = new Serial(this, "COM9", 9600);
 
-  oscP5 = new OscP5(this, 9000);    //public OscP5(Object theParent, int theReceiveAtPort)
+  oscP5 = new OscP5(this, 12000);    //public OscP5(Object theParent, int theReceiveAtPort)
       //12 000 representing the port number on the remote machine to which the OSC messages should be sent
   
   myRemoteLocation = new NetAddress("127.0.0.1", 57120);  //address where we send the osc messages, "127.0.0.1" as local work here
@@ -140,6 +141,7 @@ public void setup(){
   pitch_shift = 0;
   phaser_period = 0.010; //[s]
   rev_decay = 0.010; //[s] 
+  delay(2500);
 }
 
 public void draw(){
@@ -163,15 +165,18 @@ public void draw(){
       rect(x, y, radius, radius);}
   fill(255); //White
   
-  // Temporary - Check for collisions with the walls
-  if (x + radius >= l + x_off || x - radius <= x_off) {speedX *= -1; // Reverse the x direction
-  }
-  if (y + radius >= y_off + w || y - radius <= y_off) {speedY *= -1; // Reverse the y direction}
-  }
-  
   // Temporary - Update the position of the ball
-  x += speedX;
-  y += speedY;
+  speedX = ( accXInput - 1.59) * timeStep;
+  x += speedX * timeStep;
+  y += ( accYInput - 1.73 ) * (timeStep*timeStep);
+  
+  // Temporary - Check for collisions with the walls
+  if (x + radius >= l + x_off)      {x = l + x_off - radius;}
+  else if (x - radius <= x_off )    {x = x_off + radius;}
+  else if (y + radius >= y_off + w) {y = y_off + w - radius;}
+  else if (y - radius <= y_off)     {y = y_off + radius;}
+  
+  
   
   //println("====================");
   change_X_pos_mapping();
@@ -348,24 +353,24 @@ void harvestSerial(){
       String[] values = data.trim().split(":");
       if (values.length == 2) {
         if (values[0].equals("AccX")) {
-          ArdaccX = float(values[1]);
+          accXInput = float(values[1]);
         }
         else if (values[0].equals("AccY")) {
-          ArdaccY = float(values[1]);
+          accYInput = float(values[1]);
         }
         else if (values[0].equals("AccZ")) {
-          ArdaccZ = float(values[1]);
+          accZInput = float(values[1]);
         }
         else if (values[0].equals("HR")) {
-          ArdHR = float(values[1]);
+          HRInput = float(values[1]);
         }
       }
     }
   }
   
-  println("AccX: " + ArdaccX);
-  println("AccY: " + ArdaccY);
-  println("AccZ: " + ArdaccZ);
-  println("HR: " + ArdHR);
+  println("AccX: " + accXInput);
+  println("AccY: " + accYInput);
+  println("AccZ: " + accZInput);
+  println("HR: " + HRInput);
   println();
 }

@@ -50,35 +50,44 @@ public void panel2_Click1(GPanel source, GEvent event) { //_CODE_:panel_X_positi
 } //_CODE_:panel_X_position:865444:
 
 public void Panning_X_position_event(GOption source, GEvent event) { //_CODE_:Panning_X_position:585929:
-  println("Vol_mod_1 - GOption >> GEvent." + event + " @ " + millis());
-  if (modY == 0){ 
-    modY = 1; 
-    Mix_Y_position_event(Panning_Y_position, GEvent.SELECTED);
+  println("Vol_mod_1 - GOption >> GEvent." + event + " @ " + millis());  
+  // Deselect Panning_Y_position if it's already selected
+  if (Panning_Y_position.isSelected()) {
+    modY = 1;
+    Panning_Y_position.setSelected(false);  //Unselect Panning_Y_position
+    Mix_Y_position.setSelected(true);       // Select Mix_Y_position
   }
-  modX = 0;
-  source.setSelected(true);
-  
+    modX = 0;
 } //_CODE_:Panning_X_position:585929:
 
 public void Mix_X_position_event(GOption source, GEvent event) { //_CODE_:Mix_X_position:920265:
   println("Reverb_mod_1 - GOption >> GEvent." + event + " @ " + millis());
-  if (modY == 1) { modY = 2; }
+  if (Mix_Y_position.isSelected()) {
+    modY = 2;
+    Mix_Y_position.setSelected(false);  //Unselect Panning_Y_position
+    Room_Y_position.setSelected(true);       // Select Mix_Y_position
+  }
   modX = 1;
-  source.setSelected(true);
 } //_CODE_:Mix_X_position:920265:
 
 public void Room_X_position_event(GOption source, GEvent event) { //_CODE_:Room_X_position:497020:
   println("Clipp_mod_1 - GOption >> GEvent." + event + " @ " + millis());
-  if (modY == 2){ modY = 3; }
+  if (Room_Y_position.isSelected()) {
+    modY = 3;
+    Room_Y_position.setSelected(false);  //Unselect Panning_Y_position
+    Volume_Y_position.setSelected(true);       // Select Mix_Y_position
+  }
   modX = 2;
-  source.setSelected(true);
 } //_CODE_:Room_X_position:497020:
 
 public void Vol_X_position_event(GOption source, GEvent event) { //_CODE_:Vol_X_position:608371:
   println("Other_mod_1 - GOption >> GEvent." + event + " @ " + millis());;
-  if (modY == 3){modY =0;} 
+  if (Volume_Y_position.isSelected()) {
+    modY = 0;
+    Volume_Y_position.setSelected(false);  //Unselect Panning_Y_position
+    Panning_Y_position.setSelected(true);       // Select Mix_Y_position
+  } 
   modX = 3;
-  source.setSelected(true);
 } //_CODE_:Vol_X_position:608371:
 
 public void panel3_Click1(GPanel source, GEvent event) { //_CODE_:panel_Y_position:205923:
@@ -87,30 +96,42 @@ public void panel3_Click1(GPanel source, GEvent event) { //_CODE_:panel_Y_positi
 
 public void Panning_Y_position_event(GOption source, GEvent event) { //_CODE_:Panning_Y_position:860463:
   println("Vol_mod_2 - GOption >> GEvent." + event + " @ " + millis());
-  if (modX == 0){ modX = 1; }
+  if (Panning_X_position.isSelected()) {
+    modX = 1;
+    Panning_X_position.setSelected(false);  //Unselect Panning_Y_position
+    Mix_X_position.setSelected(true);       // Select Mix_Y_position
+  }
   modY = 0;
-  source.setSelected(true);
 } //_CODE_:Panning_Y_position:860463:
 
 public void Mix_Y_position_event(GOption source, GEvent event) { //_CODE_:Mix_Y_position:761062:
   println("Rev_mod_2 - GOption >> GEvent." + event + " @ " + millis());
-  if (modX == 1){ modX = 2; }
+  if (Mix_X_position.isSelected()) {
+    modX = 2;
+    Mix_X_position.setSelected(false);  //Unselect Panning_Y_position
+    Room_X_position.setSelected(true);       // Select Mix_Y_position
+  }
   modY = 1;
-  source.setSelected(true);
 } //_CODE_:Mix_Y_position:761062:
 
 public void Room_Y_position_event(GOption source, GEvent event) { //_CODE_:Room_Y_position:630130:
   println("Clipp_mod_2 - GOption >> GEvent." + event + " @ " + millis());
-  if (modX == 2){ modX = 3; }
+  if (Room_X_position.isSelected()) {
+    modX = 3;
+    Room_X_position.setSelected(false);  //Unselect Panning_Y_position
+    Vol_X_position.setSelected(true);       // Select Mix_Y_position
+  }
   modY = 2;
-  source.setSelected(true);
 } //_CODE_:Room_Y_position:630130:
 
 public void Volume_Y_position_event(GOption source, GEvent event) { //_CODE_:Volume_Y_position:905159:
   println("Other_mod_2 - GOption >> GEvent." + event + " @ " + millis());
-  if (modX == 3){ modX = 0; }
+  if (Vol_X_position.isSelected()) {
+    modX = 0;
+    Vol_X_position.setSelected(false);  //Unselect Panning_Y_position
+    Panning_X_position.setSelected(true);       // Select Mix_Y_position
+  }
   modY = 3;
-  source.setSelected(true);
 } //_CODE_:Volume_Y_position:905159:
 
 public void panel4_Click1(GPanel source, GEvent event) { //_CODE_:panel_Z_position:899736:
