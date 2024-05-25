@@ -31,9 +31,6 @@ EffectsAudioProcessor::EffectsAudioProcessor()
     // Instatiation of the phaser in the constructor
     , phaser()
 
-    // Instatiation of the panner in the constructor
-    , panner()
-    
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #endif
 {
@@ -127,8 +124,6 @@ void EffectsAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     chorus.reset();
     phaser.prepare(spec);
     phaser.reset();
-    panner.prepare(spec);
-    panner.reset();
     
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
@@ -211,8 +206,6 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     float phaserFeedback = *apvts.getRawParameterValue("ID_PhaserFeedback");
     float phaserMix = *apvts.getRawParameterValue("ID_PhaserMix");
 
-    float panValue = *apvts.getRawParameterValue("ID_PannerValue");
-
     // Updating the chorus state
     chorus.setRate(chorusRate);
     chorus.setDepth(chorusDepth);
@@ -227,15 +220,10 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     phaser.setFeedback(phaserFeedback);
     phaser.setMix(phaserMix);
 
-    // Updating the panner state
-    panner.setRule(juce::dsp::PannerRule::balanced);
-    panner.setPan(panValue);
-
     // Applying chorus, phaser and panner on input samples
     chorus.process(juce::dsp::ProcessContextReplacing<float>(block));
     phaser.process(juce::dsp::ProcessContextReplacing<float>(block));
-    panner.process(juce::dsp::ProcessContextReplacing<float>(block));
-
+    
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 }
@@ -291,8 +279,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout EffectsAudioProcessor::creat
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserFeedback", "Phaser Feedback", -1.0f, 1.0f, 0.0f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserMix", "Phaser Mix", 0.0f, 1.0f, 0.5f));
     
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PannerValue", "Pan", -1.0f, 1.0f, 0.0f));
-
     return {parameters.begin(), parameters.end()};
 }
 

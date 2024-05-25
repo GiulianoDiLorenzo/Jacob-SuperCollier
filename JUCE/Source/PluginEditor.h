@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+
 //==============================================================================
 /**
 */
@@ -18,7 +19,9 @@ class EffectsAudioProcessorEditor  : public juce::AudioProcessorEditor
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     // OSCReceiver inheritances
-    , private OSCReceiver, private OSCReceiver::ListenerWithOSCAddress<OSCReceiver::MessageLoopCallback>
+    /*
+    , private juce::OSCReceiver, juce::OSCReceiver::ListenerWithOSCAddress<juce::OSCReceiver::MessageLoopCallback>
+    */
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 {
@@ -50,8 +53,6 @@ private:
     juce::Slider sliderPhaserFeedback;
     juce::Slider sliderPhaserMix;
 
-    juce::Slider sliderPannerValue;
-
     // Labels declaration
     juce::Label labelChorusRate;
     juce::Label labelChorusDepth;
@@ -64,8 +65,6 @@ private:
     juce::Label labelPhaserCentreFrequency;
     juce::Label labelPhaserFeedback;
     juce::Label labelPhaserMix;
-
-    juce::Label labelPannerValue;
 
     // Attachments for linking GUI components to Processor's parameters
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderChorusRateAttachment;
@@ -80,13 +79,13 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderPhaserFeedbackAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderPhaserMixAttachment;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderPannerValueAttachment;
-   
     // OSC receiver
-    DatagramSocket ds;
+    /*
+    juce::DatagramSocket ds;
 
-    void showConnectionErrorMessage(const String& messageText);
-    void oscMessageReceived(const OSCMessage& message) override;    // virtual function from ListenerWithOSCAddress
+    void showConnectionErrorMessage(const juce::String& messageText);
+    void oscMessageReceived(const juce::OSCMessage& message) override;    // virtual function from ListenerWithOSCAddress
+    */
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

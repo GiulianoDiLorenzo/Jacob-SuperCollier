@@ -69,7 +69,6 @@ private:
     // Filters declaration
     juce::dsp::Chorus<float> chorus;
     juce::dsp::Phaser<float> phaser;
-    juce::dsp::Panner<float> panner;
     
     // Sample rate history
     float lastSampleRate;

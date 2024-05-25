@@ -99,14 +99,6 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     labelPhaserMix.setText("Phaser Mix (%)", juce::dontSendNotification);
     addAndMakeVisible(labelPhaserMix);
 
-    // Sliders and labels description for parameter 11
-    sliderPannerValue.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    sliderPannerValue.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 100, 20);
-    sliderPannerValue.setRange(-1.0, 1.0, 0.1);
-    addAndMakeVisible(sliderPannerValue);
-    labelPannerValue.setText("Pan", juce::dontSendNotification);
-    addAndMakeVisible(labelPannerValue);
-
     // Attachments linking
     sliderChorusRateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusRate", sliderChorusRate);       // AudioProcessorValueTreeState inside the Processor, parameter ID (from ParameterLayout), GUI slider
     sliderChorusDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusDepth", sliderChorusDepth);
@@ -120,16 +112,16 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     sliderPhaserFeedbackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserFeedback", sliderPhaserFeedback);
     sliderPhaserMixAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserMix", sliderPhaserMix);
     
-    sliderPannerValueAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PannerValue", sliderPannerValue);
-
     // OSC listeners
+    /*
     ds.bindToPort(57109, "127.0.0.1");      // UDP port and IP address
     if (!connectToSocket(ds))
         showConnectionErrorMessage("Error");
 
     // Example
     addListener(this, "/reverb/dry");       // listener
-    
+    */
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
 
@@ -186,9 +178,6 @@ void EffectsAudioProcessorEditor::resized()
     labelPhaserMix.setBounds(600, 220, 150, 20);
     sliderPhaserMix.setBounds(600, 250, 100, 100);
 
-    labelPannerValue.setBounds(45, 370, 150, 20);
-    sliderPannerValue.setBounds(10, 400, 100, 100);
-
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
 
@@ -196,15 +185,18 @@ void EffectsAudioProcessorEditor::resized()
 
 // User-defined method to respond to incoming OSC messages
 
-void EffectsAudioProcessorEditor::oscMessageReceived(const OSCMessage& message)
+/*
+void EffectsAudioProcessorEditor::oscMessageReceived(const juce::OSCMessage& message)
 {
     // Example
+
     if (message.getAddressPattern() == "/reverb/dry")
     {
         drySlider.setValue(jlimit(0.0f, 1.0f, message[0].getFloat32()));
         processor.set_dry(drySlider.getValue());
     }
-    
+
 }
+*/
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
