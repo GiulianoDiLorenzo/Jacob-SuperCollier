@@ -1,7 +1,7 @@
 #include<math.h>
 //#include<stdio.h>
 #include<Arduino.h>
-#include "src/AcceleroMMA7361/AcceleroMMA7361.h"
+#include "AcceleroMMA7361.h"
 #include <OSCMessage.h>
 #include <OSCBoards.h>
 
@@ -24,7 +24,7 @@ float sensorValue;
 float accX;
 float accY;
 float accZ;
-float timeStep = 1000; //[ms]
+float timeStep = 200; //[ms]
 
 
 // Variables to hold the zero-g voltage after calibration
@@ -80,11 +80,8 @@ void loop() {
   accZ = (float) acc.getXVolt()/1000; 
   Serial.print("AccZ: ");
   Serial.println(accZ);
-
-  sensorValue = analogRead(A1);
-  Serial.print("HR: ");
-  Serial.println(sensorValue);
   */
+  
 
 /*
   Serial.print("LIBRARY (degrees): ");
@@ -111,16 +108,28 @@ void loop() {
   float zAcceleration = (zVoltage - zeroGVoltageZ) / sensitivity;
 
   // Calculate acceleration in m/s²
-  //xAcceleration *= 9.81;
-  //yAcceleration *= 9.81;
-  //zAcceleration *= 9.81;
+  xAcceleration *= 9.81;
+  yAcceleration *= 9.81;
+  zAcceleration *= 9.81;
 
   // Print the results
-  Serial.println("X acceleration : " + String(xAcceleration) + " m/s²");
-  Serial.println("Y acceleration : " + String(yAcceleration) + " m/s²");
-  Serial.println("Z acceleration : " + String(zAcceleration) + " m/s²");
+  /*
+  Serial.print("X acceleration : " + String(xAcceleration) + " m/s²");
+  Serial.print("Y acceleration : " + String(yAcceleration) + " m/s²");
+  Serial.print("Z acceleration : " + String(zAcceleration) + " m/s²");
   Serial.println();
+  */
 
+  Serial.print(String(xAcceleration));
+  Serial.print(",");
+  Serial.print(String(yAcceleration));
+  Serial.print(",");
+  Serial.print(String(zAcceleration));
+  Serial.print(",");
+
+  sensorValue = analogRead(A1);
+  Serial.print(sensorValue);
+  Serial.println(",");
 
   delay(timeStep);
 }
@@ -151,10 +160,12 @@ void calibrateSensor() {
   zeroGVoltageY = yTotal / numReadings;
   zeroGVoltageZ = zTotal / numReadings;
 
+  /*
   Serial.print("Calibrated zero-g voltage for X: ");
   Serial.println(zeroGVoltageX);
   Serial.print("Calibrated zero-g voltage for Y: ");
   Serial.println(zeroGVoltageY);
   Serial.print("Calibrated zero-g voltage for Z: ");
   Serial.println(zeroGVoltageZ);
+  */
 } 
