@@ -1,78 +1,63 @@
-import shapes3d.*;
-import shapes3d.contour.*;
-import shapes3d.org.apache.commons.math.*;
-import shapes3d.org.apache.commons.math.geometry.*;
-import shapes3d.path.*;
-import shapes3d.utils.*;
-
-import apsync.*;
-import sprites.*;
-import sprites.maths.*;
-import sprites.utils.*;
-
+// Need G4P library for the GUI 
 import g4p_controls.*;
 
-// Need G4P library
-import g4p_controls.*;
-// You can remove the PeasyCam import if you are not using
-// the GViewPeasyCam control or the PeasyCam library.
-import peasy.*;
-
-import controlP5.*;
+//import controlP5.*;
 import oscP5.*; //OSC messages library
 import netP5.*; //Network addressing
+
 import processing.serial.*; //Serial communication handled by Arduino
 
 
 OscP5 oscP5;
 NetAddress myRemoteLocation; 
-ControlP5 cp5; 
+//ControlP5 cp5; 
 
 Serial serialPort;
 
-//=======================//
+//================================================//
 // Variables to store the OSC Messages from Arduino
+//================================================//
 float accXInput, accYInput, accZInput, HRInput;
 float timeStep = 0.200; // [s] MATCHING WITH ARDUINO'S timeStep
 
 
 
-//=======================//
+//====================================================================//
 // Interaction storing values
 // CHECK THAT THE INITIALISATION MATCHES WITH THE GUI SELECTED OPTIONS
+//===================================================================//
 float knobVol, knobClipp, knobRev; // Variables to store the knob values
 float sliderVal;                   // Variables to store the slider value
 int  modX, modY, modZ, modHR;      // Variables to store the modulation mapping values
 
 //=======================//
 //Canvas attributes
-float x_off;
-float y_off;
-float l ;
-float w ;
-float r_canv;
 //=======================//
+float x_off;   // [pixels]
+float y_off;   // [pixels]
+float l ;      // [pixels]
+float w ;      // [pixels]
+float r_canv;  // [pixels]
 
 //=======================//
 //Dancer's attributes
-float x_off_d;
-float y_off_d; 
-float z_off; // [m], arbitrary value of the z-position of the accelerometer (on the dancer)
-float x, y, z; // Variables to store the position of the dancer
-   //nb : z(t) = z_off + z_measured;
-
-float speedX, speedY; // Variables to store the speed of the dancer
-float accX, accY; // Variables to store the acceleration of the dancer
-float radius; // Radius of the "dancer"
+float x_off_d, y_off_d, z_off_d;    // [pixels]      arbitrary offset position for the display of the dancer
+float x, y, z;                      // [pixels]      Variables to store the position of the dancer
+float speedX, speedY;               // [m/s]    Variables to store the speed of the dancer
+float accX, accY;                   // [m/s²]   Variables to store the acceleration of the dancer
+float radius;                       // [pixels] Radius of the "dancer"
 
 
-//=======================//
+//=====================================================================//
 // Linear factors for converting the dancer's signal into relevant values
-float a,b;
-float a_room, b_room;
-float a_mix, b_mix;
-float a_vol, b_vol;
-float a_filter, b_filter;
+//=====================================================================//
+float a,b;                // [-]
+float a_room, b_room;     // [-]
+float a_mix, b_mix;       // [-]
+float a_vol, b_vol;       // [-]
+float a_filter, b_filter; // [-]
+float a_chorus, b_chorus; // [-]
+
 
 
 //=======================//
@@ -84,96 +69,93 @@ float min_cut_off_freq; // [Hz]  We assume BPM to be at least 0 (dead dancer sce
 float max_cut_off_freq; // [Hz]
 
 
-//=======================//
+//===========================================================//
 // Modulation effects values to communicate to SC and/or JUCE
-float panning, volume, mix, room, filter_freq, pitch_shift, phaser_period, rev_decay;
+//===========================================================//
+float panning, volume, mix, room, filter_freq, pitch_shift, phaser_period, rev_decay, chorus_fb;
 
 ArrayList<Integer> list = new ArrayList<Integer>();
 
 public void setup(){
-  size(905, 640, JAVA2D);  
-  // Position the canvas on the screen (x, y)
+  size(500, 600, JAVA2D);  
   createGUI(); 
   
-  serialPort = new Serial(this, "COM6", 9600);      // INSERT YOUR COM FOR ARDUINO
+  serialPort = new Serial(this, "COM6", 9600);      // INSERT YOUR COM FOR ARDUINO, MAKE SURE IT MATCHES THE DETECTED COM IN ARDUINO
 
   oscP5 = new OscP5(this, 12000);    //public OscP5(Object theParent, int theReceiveAtPort)
       //12 000 representing the port number on the remote machine to which the OSC messages should be sent
   
   myRemoteLocation = new NetAddress("127.0.0.1", 57120);  //address where we send the osc messages, "127.0.0.1" as local work here
-      //127.0.0.1 being the "localhost"
       
   //cp5 = new ControlP5(this);
   
+  //===============================//
   //Canvas attributes, all in pixels
-  x_off = 10;
-  y_off = 240;
+  //===============================//
+  x_off = 25;
+  y_off = 220;
   l =450;
   w = 250;
   r_canv = 10;
   
-  
-  //Initialising the selected options
-  modX = 0; modY = 1; modZ = 0; modHR = 0;
-  
-  //Setting the frequency limits of our filter
-  min_cut_off_freq = 500; // [Hz]
-  max_cut_off_freq = 2000; // [Hz]
-
-  
-  // Temporary speedX, speedY values, while we are not connected to the dancer
-  speedX = 2;
-  speedY = 1;
-  
+  //=========================================================================================//
   //Placing the dancer at the centre of the "room", all in pixels except for z (to check later)
-  x_off_d = ( l + x_off )  / 2;        
-  y_off_d = ( w + 2*y_off )  / 2;      
+  //=========================================================================================//
+  x_off_d = x_off + l/ 2;        
+  y_off_d = y_off + w / 2;      
   radius = 10;                         
   x = x_off_d;
   y = y_off_d;
-  z_off = 1.3; //[m]
-  z = z_off + 1.5;
+  z_off_d = 1.3; // [m]
+  z = z_off_d + 1.5;
+  
+  //===============================//
+  //Initialising the selected options
+  //===============================//
+  modX = 0; modY = 1; modZ = 0; modHR = 0;
   
   
-  panning = 0;
-  volume = 0;
-  mix = 0;
-  room = 0;
-  filter_freq = min_cut_off_freq;
-  pitch_shift = 0;
-  phaser_period = 0.010; //[s]
-  rev_decay = 0.010; //[s] 
-  delay(2500);
+  //========================================//
+  //Setting the frequency limits of our filter
+  //========================================//
+  min_cut_off_freq = 500; // [Hz]
+  max_cut_off_freq = 2000; // [Hz]
+
+
+  //==============================================//
+  // Initialising the effects parameters, arbitrary
+  //==============================================//
+  panning = 0;                     // [-]
+  volume = 0;                      // [dB]
+  mix = 0;                         // [-]
+  room = 0;                        // [-]
+  filter_freq = min_cut_off_freq;  // [Hz]
+  pitch_shift = 0;                 // [-]
+  phaser_period = 0.010;           // [s]
+  rev_decay = 0.010;               // [s] 
+  chorus_fb = 0.0;                 // [-]
+  
+  delay(1000);  //Delay to make sure that calibration is done when we first display the GUI
 }
 
 public void draw(){
   background(230);
   frameRate(120);
   
+  //OSC message function
   controlEvent();
  
+  // Gathering the Arduino messages 
   harvestSerial();
+  
+  //Updating the list of parameters we don't change
   setNan();
-  
-  if (list.get(0) == 0 || list.get(1) == 0) {
-    panning = Float.NaN;
-  }
-  if (list.get(0) == 1 || list.get(1) == 1) {
-    mix = Float.NaN;
-  }
-  if (list.get(0) == 2 || list.get(1) == 2) {
-    room = Float.NaN;
-  }
-  if (list.get(0) == 3 || list.get(1) == 3) {
-    volume = Float.NaN;
-  }
-  
   
   //Draw the canvas
   rect(x_off, y_off, l, w, r_canv);
   fill(255); //White
   
-  // Draw the dancer
+  // Draw the "dancer"
   fill(0); //Black
   if (modX ==0){
     ellipse(x, y, radius, radius);}
@@ -181,17 +163,15 @@ public void draw(){
       rect(x, y, radius, radius);}
   fill(255); //White
   
-  // Temporary - Update the position of the ball
-  speedX = ( accXInput ) * timeStep;
-  x += speedX * timeStep;
-  y += ( accYInput  ) * (timeStep*timeStep);
+  // Updating the dancer's position
+  x += accXInput * timeStep * timeStep;   // [pixels]
+  y += accYInput * timeStep * timeStep;  // [pixels]
   
-  // Temporary - Check for collisions with the walls
+  //Check for collisions with the walls - The dancer cannot go outside of the canvas
   if (x + radius >= l + x_off)      {x = l + x_off - radius;}
   else if (x - radius <= x_off )    {x = x_off + radius;}
   if (y + radius >= y_off + w)      {y = y_off + w - radius;}
   else if (y - radius <= y_off)     {y = y_off + radius;}
-  
   
   
   //println("====================");
@@ -201,12 +181,11 @@ public void draw(){
   change_HR_mapping();
   //println("====================\n");
   //println("\n");
-  
-  
 }
 
 public void controlEvent(){
-  //Controls which event happens in the processing code
+  //Construct OSC messages with the provided values
+  // Sends the OSC message so that SuperCollider and/or Juce can use them
   OscMessage msgKnob = new OscMessage("/knobs"); //message name
   msgKnob.add( knobVol );
   msgKnob.add( knobClipp );
@@ -238,6 +217,8 @@ public void controlEvent(){
   msgModValue.add( pitch_shift );
   msgModValue.add( phaser_period );
   msgModValue.add( rev_decay );
+  msgModValue.add( chorus_fb );
+  
   oscP5.send(msgModValue, myRemoteLocation);
   msgModValue.print();
 }
@@ -310,7 +291,7 @@ void change_Y_pos_mapping(){
 void change_Z_pos_mapping(){
   //================================================
   // Change the selected parameters for Z - position
-  // We assume that modZ = {0, 1, 2, 3}
+  // We assume that modZ = {0, 1}
   //This function changes the appropriate modulation effect, depending on the selected option and on the values provided by the dancer's sensors
   //For now, we are thresholding the pitch shift, but this might change later
   
@@ -332,9 +313,13 @@ void change_Z_pos_mapping(){
     }
     //println("pitch_shift = " + pitch_shift);
   }
-  else {
-    println("Error in modZ value"); exit();
+  else if (modZ == 1){
+    b_chorus = -1 ;
+    a_chorus = + 1 ;
+    chorus_fb = a_chorus*z + b_chorus;
+    //println("chorus_fb = " + chorus_fb);
   }
+  else  {println("Error in modZ value"); exit();}
 }
 
 void change_HR_mapping(){
@@ -345,15 +330,15 @@ void change_HR_mapping(){
   if (modHR == 0){
     b_filter = min_cut_off_freq;
     a_filter = (max_cut_off_freq - min_cut_off_freq) / max_BPM_Hz;
-    filter_freq = a_filter * BPM_Hz + b_filter;
+    filter_freq = a_filter * (1000/HRInput) + b_filter;
     //println("fitler_freq = " + filter_freq);
   }
   else if (modHR == 1){
-    phaser_period = 1/BPM_Hz;
+    phaser_period = (1000/HRInput);
     //println("phaser_period = " + phaser_period + "s");
   }
   else if (modHR == 2){
-    rev_decay = 1/BPM_Hz;
+    rev_decay = (1000/HRInput);
     //println("reverb decay = " + rev_decay + "s");
   }
   else { println("Error in modHR value"); exit();}
@@ -362,6 +347,7 @@ void change_HR_mapping(){
 
 
 void harvestSerial(){
+    //This function gathers the Arduino messages and stores the values in 4 different variables of interest
   if (serialPort.available() > 0) {
     String data = serialPort.readStringUntil('\n');
     
@@ -396,8 +382,10 @@ void harvestSerial(){
 }
 
 void setNan() {
+  //This function updates the list of parameters that are not modified by the dancer
+  //This will allow us to include in the OSC Message, what to look for to modify the effects
+  //If a value is NaN, SuperCollider and/or Juce will know that this parameter is not modified by the dancer
   list.clear();
-  
   list.add(0);
   list.add(1);
   list.add(2);
@@ -413,4 +401,16 @@ void setNan() {
   
   print("list: " + list);
   
+  if (list.get(0) == 0 || list.get(1) == 0) {
+    panning = Float.NaN;
+  }
+  if (list.get(0) == 1 || list.get(1) == 1) {
+    mix = Float.NaN;
+  }
+  if (list.get(0) == 2 || list.get(1) == 2) {
+    room = Float.NaN;
+  }
+  if (list.get(0) == 3 || list.get(1) == 3) {
+    volume = Float.NaN;
+  }
 }

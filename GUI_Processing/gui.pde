@@ -137,23 +137,16 @@ public void Pitch_shift_Z_pos_event(GOption source, GEvent event) { //_CODE_:Pit
   source.setSelected(true);
 } //_CODE_:Pitch_shift_Z_pos:253008:
 
-public void Rev_Z_event(GOption source, GEvent event) { //_CODE_:Rev_Z_speed:207221:
+public void Chorus_fb_Z_pos_event(GOption source, GEvent event) { //_CODE_:Chorus_fb_Z_pos:207221:
   println("Rev_Z_speed - GOption >> GEvent." + event + " @ " + millis());
+  if (Vol_X_position.isSelected()) {
+    modX = 0;
+    Vol_X_position.setSelected(false);  //Unselect Panning_Y_position
+    Panning_X_position.setSelected(true);       // Select Mix_Y_position
+  }
   modZ = 1;
   source.setSelected(true);
-} //_CODE_:Rev_Z_speed:207221:
-
-public void Clipp_Z_event(GOption source, GEvent event) { //_CODE_:Clipp_Z_speed:437441:
-  println("Clipp_Z_speed - GOption >> GEvent." + event + " @ " + millis());
-  modZ = 2;
-  source.setSelected(true);
-} //_CODE_:Clipp_Z_speed:437441:
-
-public void Other_Z_event(GOption source, GEvent event) { //_CODE_:Other_Z_speed:388718:
-  println("Other_Z_speed - GOption >> GEvent." + event + " @ " + millis());
-  modZ = 3;
-  source.setSelected(true);
-} //_CODE_:Other_Z_speed:388718:
+} //_CODE_:Chorus_fb_Z_pos:207221:
 
 public void panel5_Click1(GPanel source, GEvent event) { //_CODE_:panel_HR:291612:
   println("panel5 - GPanel >> GEvent." + event + " @ " + millis());
@@ -177,20 +170,6 @@ public void Rever_Decay_HR_event(GOption source, GEvent event) { //_CODE_:Rever_
   source.setSelected(true);
 } //_CODE_:Rever_Decay_HR:294957:
 
-public void panel1_Click2(GPanel source, GEvent event) { //_CODE_:Slider_Panel:967632:
-  println("MySlider - GPanel >> GEvent." + event + " @ " + millis());
-} //_CODE_:Slider_Panel:967632:
-
-public void slider_event(GSlider source, GEvent event) { //_CODE_:Panning:788127:
-  //println("Panning - GSlider >> GEvent." + event + " @ " + millis());
-  sliderVal = source.getValueF();
-  println("Panning - GSlider >> GEvent." + event + " @ " + millis() + " Value: " + sliderVal);
-} //_CODE_:Panning:788127:
-
-public void panel1_Click4(GPanel source, GEvent event) { //_CODE_:WF_2_Display_panel:276233:
-  println("WF_2_Display_panel - GPanel >> GEvent." + event + " @ " + millis());
-} //_CODE_:WF_2_Display_panel:276233:
-
 public void textarea1_change1(GTextArea source, GEvent event) { //_CODE_:Credits_text:788940:
   println("Credits_text - GTextArea >> GEvent." + event + " @ " + millis());
 } //_CODE_:Credits_text:788940:
@@ -204,7 +183,7 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  Knob_Panel = new GPanel(this, 0, 540, 200, 100, "Knobs Controls");
+  Knob_Panel = new GPanel(this, 0, 500, 200, 100, "Knobs Controls");
   Knob_Panel.setCollapsible(false);
   Knob_Panel.setDraggable(false);
   Knob_Panel.setText("Knobs Controls");
@@ -264,13 +243,13 @@ public void createGUI(){
   Knob_Panel.addControl(label_volume_knob);
   Knob_Panel.addControl(label_clipping_knob);
   Knob_Panel.addControl(label_reverb_knob);
-  Mapping_panel = new GPanel(this, 10, 60, 451, 140, "Input events mapping");
+  Mapping_panel = new GPanel(this, 24, 60, 459, 140, "Input events mapping");
   Mapping_panel.setCollapsible(false);
   Mapping_panel.setDraggable(false);
   Mapping_panel.setText("Input events mapping");
   Mapping_panel.setOpaque(true);
   Mapping_panel.addEventHandler(this, "panel1_Click1");
-  panel_X_position = new GPanel(this, 2, 25, 111, 110, "X-position");
+  panel_X_position = new GPanel(this, 1, 25, 111, 110, "X-position");
   panel_X_position.setCollapsible(false);
   panel_X_position.setDraggable(false);
   panel_X_position.setText("X-position");
@@ -306,7 +285,7 @@ public void createGUI(){
   panel_X_position.addControl(Room_X_position);
   X_pos_group.addControl(Vol_X_position);
   panel_X_position.addControl(Vol_X_position);
-  panel_Y_position = new GPanel(this, 114, 25, 111, 110, "Y-position");
+  panel_Y_position = new GPanel(this, 116, 25, 111, 110, "Y-position");
   panel_Y_position.setCollapsible(false);
   panel_Y_position.setDraggable(false);
   panel_Y_position.setText("Y-position");
@@ -342,7 +321,7 @@ public void createGUI(){
   panel_Y_position.addControl(Room_Y_position);
   Y_pos_group.addControl(Volume_Y_position);
   panel_Y_position.addControl(Volume_Y_position);
-  panel_Z_position = new GPanel(this, 226, 25, 111, 110, "Z-position");
+  panel_Z_position = new GPanel(this, 231, 25, 111, 110, "Z-position");
   panel_Z_position.setCollapsible(false);
   panel_Z_position.setDraggable(false);
   panel_Z_position.setText("Z-position");
@@ -354,31 +333,17 @@ public void createGUI(){
   Pitch_shift_Z_pos.setText("Pitch shift");
   Pitch_shift_Z_pos.setOpaque(false);
   Pitch_shift_Z_pos.addEventHandler(this, "Pitch_shift_Z_pos_event");
-  Rev_Z_speed = new GOption(this, 0, 45, 80, 20);
-  Rev_Z_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Rev_Z_speed.setText("Reverb");
-  Rev_Z_speed.setOpaque(false);
-  Rev_Z_speed.addEventHandler(this, "Rev_Z_event");
-  Clipp_Z_speed = new GOption(this, 0, 65, 80, 20);
-  Clipp_Z_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Clipp_Z_speed.setText("Clipping");
-  Clipp_Z_speed.setOpaque(false);
-  Clipp_Z_speed.addEventHandler(this, "Clipp_Z_event");
-  Other_Z_speed = new GOption(this, 0, 85, 80, 20);
-  Other_Z_speed.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Other_Z_speed.setText("Other");
-  Other_Z_speed.setOpaque(false);
-  Other_Z_speed.addEventHandler(this, "Other_Z_event");
+  Chorus_fb_Z_pos = new GOption(this, 0, 45, 120, 20);
+  Chorus_fb_Z_pos.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Chorus_fb_Z_pos.setText("Chorus Feedback");
+  Chorus_fb_Z_pos.setOpaque(false);
+  Chorus_fb_Z_pos.addEventHandler(this, "Chorus_fb_Z_pos_event");
   Z_speed_group.addControl(Pitch_shift_Z_pos);
   Pitch_shift_Z_pos.setSelected(true);
   panel_Z_position.addControl(Pitch_shift_Z_pos);
-  Z_speed_group.addControl(Rev_Z_speed);
-  panel_Z_position.addControl(Rev_Z_speed);
-  Z_speed_group.addControl(Clipp_Z_speed);
-  panel_Z_position.addControl(Clipp_Z_speed);
-  Z_speed_group.addControl(Other_Z_speed);
-  panel_Z_position.addControl(Other_Z_speed);
-  panel_HR = new GPanel(this, 338, 25, 111, 110, "Heart-Rate");
+  Z_speed_group.addControl(Chorus_fb_Z_pos);
+  panel_Z_position.addControl(Chorus_fb_Z_pos);
+  panel_HR = new GPanel(this, 346, 25, 111, 110, "Heart-Rate");
   panel_HR.setCollapsible(false);
   panel_HR.setDraggable(false);
   panel_HR.setText("Heart-Rate");
@@ -387,7 +352,7 @@ public void createGUI(){
   group_HR = new GToggleGroup();
   Filter_HR = new GOption(this, 0, 25, 107, 20);
   Filter_HR.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Filter_HR.setText("Filter (low pass?)");
+  Filter_HR.setText("Filter");
   Filter_HR.setOpaque(false);
   Filter_HR.addEventHandler(this, "Filter_HR_event");
   Phaser_HR = new GOption(this, 0, 45, 107, 20);
@@ -411,32 +376,12 @@ public void createGUI(){
   Mapping_panel.addControl(panel_Y_position);
   Mapping_panel.addControl(panel_Z_position);
   Mapping_panel.addControl(panel_HR);
-  labelTitle = new GLabel(this, 377, 9, 200, 45);
+  labelTitle = new GLabel(this, 150, 9, 200, 45);
   labelTitle.setIcon("CENTER", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   labelTitle.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   labelTitle.setText("Jacob SuperCollier's amazing Plug-In");
   labelTitle.setOpaque(false);
-  Slider_Panel = new GPanel(this, 205, 540, 200, 80, "Sliders");
-  Slider_Panel.setCollapsible(false);
-  Slider_Panel.setDraggable(false);
-  Slider_Panel.setText("Sliders");
-  Slider_Panel.setOpaque(true);
-  Slider_Panel.addEventHandler(this, "panel1_Click2");
-  Panning = new GSlider(this, 0, 20, 200, 60, 10.0);
-  Panning.setShowValue(true);
-  Panning.setLimits(0.0, -1.0, 1.0);
-  Panning.setShowTicks(true);
-  Panning.setNumberFormat(G4P.DECIMAL, 2);
-  Panning.setOpaque(false);
-  Panning.addEventHandler(this, "slider_event");
-  Slider_Panel.addControl(Panning);
-  WF_2_Display_panel = new GPanel(this, 480, 60, 400, 360, "Insert plots here");
-  WF_2_Display_panel.setCollapsible(false);
-  WF_2_Display_panel.setDraggable(false);
-  WF_2_Display_panel.setText("Insert plots here");
-  WF_2_Display_panel.setOpaque(true);
-  WF_2_Display_panel.addEventHandler(this, "panel1_Click4");
-  Credits_text = new GTextArea(this, 760, 570, 165, 80, G4P.SCROLLBARS_NONE);
+  Credits_text = new GTextArea(this, 335, 520, 165, 80, G4P.SCROLLBARS_NONE);
   Credits_text.setText("Credits : \n CAGNETTA Angelica \n DI LORENZO Giuliano \n MUGNAINI Nicola \n OUALI Ernest");
   Credits_text.setOpaque(false);
   Credits_text.addEventHandler(this, "textarea1_change1");
@@ -467,16 +412,11 @@ GOption Volume_Y_position;
 GPanel panel_Z_position; 
 GToggleGroup Z_speed_group; 
 GOption Pitch_shift_Z_pos; 
-GOption Rev_Z_speed; 
-GOption Clipp_Z_speed; 
-GOption Other_Z_speed; 
+GOption Chorus_fb_Z_pos; 
 GPanel panel_HR; 
 GToggleGroup group_HR; 
 GOption Filter_HR; 
 GOption Phaser_HR; 
 GOption Rever_Decay_HR; 
 GLabel labelTitle; 
-GPanel Slider_Panel; 
-GSlider Panning; 
-GPanel WF_2_Display_panel; 
 GTextArea Credits_text; 
