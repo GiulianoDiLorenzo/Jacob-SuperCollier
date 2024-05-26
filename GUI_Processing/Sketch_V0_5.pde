@@ -17,7 +17,7 @@ Serial serialPort;
 //================================================//
 // Variables to store the OSC Messages from Arduino
 //================================================//
-float accXInput, accYInput, accZInput, HRInput;
+float accXInput, accYInput, accZInput, HRInput;  //HRInput in ms
 float timeStep = 0.200; // [s] MATCHING WITH ARDUINO'S timeStep
 
 
@@ -40,47 +40,76 @@ float w ;      // [pixels]
 float r_canv;  // [pixels]
 
 //=======================//
-//Dancer's attributes
+//  Dancer's attributes  //
+//=======================//
 float x_off_d, y_off_d, z_off_d;    // [pixels]      arbitrary offset position for the display of the dancer
 float x, y, z;                      // [pixels]      Variables to store the position of the dancer
 float speedX, speedY;               // [m/s]    Variables to store the speed of the dancer
 float accX, accY;                   // [m/s²]   Variables to store the acceleration of the dancer
 float radius;                       // [pixels] Radius of the "dancer"
+float headTopY;                     // [pixels]
+float legBottomY;                   // [pixels]
+float dancerHeight = 20;            // [pixels]
+float headSize = 4;                 // [pixels]
+float bodyHeight = 8;               // [pixels]
+float armLength = 6;                // [pixels]
+float legLength = 8;                // [pixels]
 
 
 //=====================================================================//
 // Linear factors for converting the dancer's signal into relevant values
 //=====================================================================//
-float a,b;                // [-]
-float a_room, b_room;     // [-]
-float a_mix, b_mix;       // [-]
-float a_vol, b_vol;       // [-]
-float a_filter, b_filter; // [-]
-float a_chorus, b_chorus; // [-]
+float a,b;                          // [-]
+float a_room, b_room;               // [-]
+float a_mix, b_mix;                 // [-]
+float a_vol, b_vol;                 // [-]
+float a_filter, b_filter;           // [-]
+float a_chorus, b_chorus;           // [-]
+float a_cut_off, b_cut_off;         // [-]
+float a_phaser_rate, b_phaser_rate; // [-]
 
 
 
-//=======================//
-// Temporary BPM values for crash testing
-float BPM = 180/4;
-float BPM_Hz = BPM / 60;
-float max_BPM_Hz = 180/60;
+//=====================================//
+//           BPM boundaries            //
+//=====================================//
+float max_BPM = 240;                // [BPM] 
+float max_BPM_Hz = 1/(max_BPM*60);  // [Hz]
 float min_cut_off_freq; // [Hz]  We assume BPM to be at least 0 (dead dancer scenario)
 float max_cut_off_freq; // [Hz]
+
+
+//===================================================//
+//  Pitch shift related positions on the canvas      //
+//==================================================//
+float x_0_shift_min;   // [pixels]
+float x_0_shift_max;   // [pixels]
+float y_0_shift_min;   // [pixels]
+float y_0_shift_max;   // [pixels]
+
 
 
 //===========================================================//
 // Modulation effects values to communicate to SC and/or JUCE
 //===========================================================//
-float panning, volume, mix, room, filter_freq, pitch_shift, phaser_period, rev_decay, chorus_fb;
+float panning, volume, mix, room, filter_freq, pitch_shift, phaser_rate, rev_pre_delay, chorus_fb;
+float oscillation_range;       // [%] Characterizes the amplitude of oscillation of the cut_off frequencies of the Band Pass Filter, in the range [-50; 50] %
+float min_range =  - 50.;   // [%]
+float max_range = 50.;      // [%]
+  //
 
-ArrayList<Integer> list = new ArrayList<Integer>();
+ArrayList<Integer> listXY = new ArrayList<Integer>();
+ArrayList<Integer> listZ = new ArrayList<Integer>();
+ArrayList<Integer> listHR = new ArrayList<Integer>();
 
 public void setup(){
   size(500, 600, JAVA2D);  
   createGUI(); 
   
-  serialPort = new Serial(this, "COM6", 9600);      // INSERT YOUR COM FOR ARDUINO, MAKE SURE IT MATCHES THE DETECTED COM IN ARDUINO
+  // Make the panel invisible initially
+  Knob_Panel.setVisible(false);
+  
+  serialPort = new Serial(this, "COM9", 9600);      // INSERT YOUR COM FOR ARDUINO, MAKE SURE IT MATCHES THE DETECTED COM IN ARDUINO
 
   oscP5 = new OscP5(this, 12000);    //public OscP5(Object theParent, int theReceiveAtPort)
       //12 000 representing the port number on the remote machine to which the OSC messages should be sent
@@ -109,6 +138,15 @@ public void setup(){
   z_off_d = 1.3; // [m]
   z = z_off_d + 1.5;
   
+  //==============================================//
+  //Setting the 'spatial' boundaries of pitch shift
+  //=============================================//
+  x_0_shift_min = l/4;      // [pixels]
+  x_0_shift_max = 3*l/4 ;   // [pixels]
+  y_0_shift_min = w/4;      // [pixels]
+  y_0_shift_max = 3*w/4;    // [pixels]
+  
+  
   //===============================//
   //Initialising the selected options
   //===============================//
@@ -131,9 +169,10 @@ public void setup(){
   room = 0;                        // [-]
   filter_freq = min_cut_off_freq;  // [Hz]
   pitch_shift = 0;                 // [-]
-  phaser_period = 0.010;           // [s]
-  rev_decay = 0.010;               // [s] 
+  phaser_rate = 1.5;               // [Hz], default value in JUCE
+  rev_pre_delay = 0.010;           // [s]  , default value in JUCE
   chorus_fb = 0.0;                 // [-]
+  oscillation_range = 0.;
   
   delay(1000);  //Delay to make sure that calibration is done when we first display the GUI
 }
@@ -148,39 +187,39 @@ public void draw(){
   // Gathering the Arduino messages 
   harvestSerial();
   
-  //Updating the list of parameters we don't change
-  setNan();
-  
   //Draw the canvas
   rect(x_off, y_off, l, w, r_canv);
   fill(255); //White
   
   // Draw the "dancer"
   fill(0); //Black
-  if (modX ==0){
-    ellipse(x, y, radius, radius);}
-    else{
-      rect(x, y, radius, radius);}
+  drawDancer(x, y);
   fill(255); //White
+  //fill(0); //Black
+  //ellipse(x, y, radius, radius);
   
   // Updating the dancer's position
   x += accXInput * timeStep * timeStep;   // [pixels]
   y += accYInput * timeStep * timeStep;  // [pixels]
+  //println("x : " + x + ", y : " + y);
   
   //Check for collisions with the walls - The dancer cannot go outside of the canvas
-  if (x + radius >= l + x_off)      {x = l + x_off - radius;}
-  else if (x - radius <= x_off )    {x = x_off + radius;}
-  if (y + radius >= y_off + w)      {y = y_off + w - radius;}
-  else if (y - radius <= y_off)     {y = y_off + radius;}
+  if (x + legLength > l + x_off)      {x = l + x_off - legLength;}
+  else if (x - legLength < x_off )    {x = x_off + legLength;}
+  if ( legBottomY > y_off + w)      {y = y_off + w - dancerHeight/2 ;}
+  else if (headTopY < y_off + headSize/2  )     {y = y_off + dancerHeight/2 + headSize ;}
   
   
   //println("====================");
   change_X_pos_mapping();
   change_Y_pos_mapping();
-  change_Z_pos_mapping();
+  change_other_mod();
   change_HR_mapping();
   //println("====================\n");
   //println("\n");
+  
+   //Updating the list of parameters we don't change
+  setNan();
 }
 
 public void controlEvent(){
@@ -215,10 +254,12 @@ public void controlEvent(){
   msgModValue.add( volume );
   msgModValue.add( filter_freq );
   msgModValue.add( pitch_shift );
-  msgModValue.add( phaser_period );
-  msgModValue.add( rev_decay );
+  msgModValue.add( phaser_rate );
+  msgModValue.add( rev_pre_delay );
   msgModValue.add( chorus_fb );
-  
+  msgModValue.add( oscillation_range );
+
+ 
   oscP5.send(msgModValue, myRemoteLocation);
   msgModValue.print();
 }
@@ -288,36 +329,35 @@ void change_Y_pos_mapping(){
   else { println("Error in modY value"); exit();}
 }
 
-void change_Z_pos_mapping(){
+void change_other_mod(){
   //================================================
-  // Change the selected parameters for Z - position
-  // We assume that modZ = {0, 1}
+  // Change the selected parameters for an extra modulation
+  // We assume that modZ = {0, 1, 2}
   //This function changes the appropriate modulation effect, depending on the selected option and on the values provided by the dancer's sensors
   //For now, we are thresholding the pitch shift, but this might change later
   
   if (modZ == 0){
-    if ( (z >= 0) && (z < 0.5) ) {
-      pitch_shift = -2 ; //-2 semitones shift
+    if ((x >= x_0_shift_min + x_off) && (x <= x_0_shift_max  + x_off) && (y >= y_0_shift_min + y_off) && (y <= y_0_shift_max  + y_off) ){
+      //no pitch_shift
+      pitch_shift = 0;
     }
-    else if ( (z >= 0.5) && (z < 1) ) {
-      pitch_shift = -1 ; //-1 semitone shift
-    }
-    else if ( (z >= 1) && (z < 1.5) ) {
-      pitch_shift = 0 ; //0 semitone shift
-    }
-    else if ( (z >= 1.5) && (z < 2) ) {
-      pitch_shift = +1 ; //+1 semitones shift
+    else if (x <= l/2 + x_off){
+      if (y <= w/2 + y_off)  {pitch_shift = -1;}
+      else           {pitch_shift = -2;}
     }
     else {
-      pitch_shift = +2 ; //+2 semitones shift
-    }
-    //println("pitch_shift = " + pitch_shift);
+      if (y <= w/2 + y_off)  {pitch_shift = +1;}
+      else           {pitch_shift = +2;}
+    } 
   }
   else if (modZ == 1){
     b_chorus = -1 ;
     a_chorus = + 1 ;
     chorus_fb = a_chorus*z + b_chorus;
     //println("chorus_fb = " + chorus_fb);
+  }
+  else if (modZ == 2){
+    println("No extra modulation wanted");
   }
   else  {println("Error in modZ value"); exit();}
 }
@@ -334,12 +374,26 @@ void change_HR_mapping(){
     //println("fitler_freq = " + filter_freq);
   }
   else if (modHR == 1){
-    phaser_period = (1000/HRInput);
-    //println("phaser_period = " + phaser_period + "s");
+    b_phaser_rate = 0;
+    a_phaser_rate = (float) 15/200;
+    phaser_rate = a_phaser_rate * (HRInput/1000)*60 + b_phaser_rate;
+    //println("phaser_rate = " + phaser_rate + "Hz");
+    //NB : In JUCE, the pahser we use has a rate in the range [0;15] Hz
   }
   else if (modHR == 2){
-    rev_decay = (1000/HRInput);
-    //println("reverb decay = " + rev_decay + "s");
+    rev_pre_delay = (1000/HRInput);
+    //println("reverb pre delay = " + rev_pre_delay + "s");
+  }
+  else if (modHR == 3){
+    //If BPMInput == 40, we have -50%, if BPMInput ==200, we have +50%
+    if ( (HRInput/1000)*60 <= 40)        {oscillation_range = min_range;}
+    else if ( (HRInput/1000)*60 >= 200)  {oscillation_range = max_range;}
+    else{
+      b_cut_off = (3 * min_range - max_range) / 40;   
+      a_cut_off = (max_range - min_range) / 160;
+      oscillation_range = a_cut_off * (HRInput/1000)*60 + b_cut_off;
+    }
+    //println("oscillation range = " + oscillation_range + "%");
   }
   else { println("Error in modHR value"); exit();}
 }
@@ -351,7 +405,7 @@ void harvestSerial(){
   if (serialPort.available() > 0) {
     String data = serialPort.readStringUntil('\n');
     
-    println("data:" + data);
+    //println("data:" + data);
     
     if (data != null) {
       // Split the received string into accelerometer and heart rate values
@@ -385,32 +439,103 @@ void setNan() {
   //This function updates the list of parameters that are not modified by the dancer
   //This will allow us to include in the OSC Message, what to look for to modify the effects
   //If a value is NaN, SuperCollider and/or Juce will know that this parameter is not modified by the dancer
-  list.clear();
-  list.add(0);
-  list.add(1);
-  list.add(2);
-  list.add(3);
+  listXY.clear();
+  listXY.add(0);
+  listXY.add(1);
+  listXY.add(2);
+  listXY.add(3);
   
-  if (list.contains(modX)) {
-    list.remove(Integer.valueOf(modX));
+  listZ.clear();
+  listZ.add(0);
+  listZ.add(1);
+  listZ.add(2);
+  
+  listHR.clear();
+  listHR.add(0);
+  listHR.add(1);
+  listHR.add(2);
+  listHR.add(3);
+  
+  //=================================//
+  //       ListXY modification       //
+  //=================================//
+  if (listXY.contains(modX)) {
+    listXY.remove(Integer.valueOf(modX));
   }
   
-  if (list.contains(modY)) {
-    list.remove(Integer.valueOf(modY));
+  if (listXY.contains(modY)) {
+    listXY.remove(Integer.valueOf(modY));
   }
   
-  print("list: " + list);
+  //println("listXY: " + listXY);
   
-  if (list.get(0) == 0 || list.get(1) == 0) {
+  if (listXY.get(0) == 0 || listXY.get(1) == 0) {
     panning = Float.NaN;
   }
-  if (list.get(0) == 1 || list.get(1) == 1) {
+  if (listXY.get(0) == 1 || listXY.get(1) == 1) {
     mix = Float.NaN;
   }
-  if (list.get(0) == 2 || list.get(1) == 2) {
+  if (listXY.get(0) == 2 || listXY.get(1) == 2) {
     room = Float.NaN;
   }
-  if (list.get(0) == 3 || list.get(1) == 3) {
+  if (listXY.get(0) == 3 || listXY.get(1) == 3) {
     volume = Float.NaN;
   }
+  
+  //=================================//
+  //       ListZ modification       //
+  //=================================//
+  if (listZ.contains(modZ)) {
+    listZ.remove(Integer.valueOf(modZ));
+  }
+  
+  //println("listZ: " + listZ);
+  
+  if (listZ.get(0) == 0 )      {pitch_shift = Float.NaN;}
+  else if (listZ.get(0) == 1 ) {chorus_fb = Float.NaN;}
+  
+  if (listZ.get(1) == 0 )      {pitch_shift = Float.NaN;}
+  else if (listZ.get(1) == 1 ) {chorus_fb = Float.NaN;}
+  
+  
+  //=================================//
+  //       ListHR modification       //
+  //=================================//
+  if (listHR.contains(modHR)) {
+    listHR.remove(Integer.valueOf(modHR));
+  }
+  
+  //println("listHR: " + listHR);
+  int i;
+  for (i = 0; i < 3; i++){
+    if (listHR.get(i) == 0 )      {filter_freq = Float.NaN;}
+    else if (listHR.get(i) == 1 )  {phaser_rate = Float.NaN;}
+    else if (listHR.get(i) == 2 )  {rev_pre_delay = Float.NaN;}
+    else                          {oscillation_range = Float.NaN;}
+  }
+}
+
+
+void drawDancer(float x, float y) {
+
+
+  // Calculate the y position for the top and bottom of the dancer
+  headTopY = y - (dancerHeight / 2) - (headSize / 2);
+  float bodyTopY = y - (bodyHeight / 2);
+  float bodyBottomY = y + (bodyHeight / 2);
+  legBottomY = y + (dancerHeight / 2);
+
+  // Draw head
+  ellipse(x, headTopY, headSize, headSize);
+
+  // Draw body
+  line(x, bodyTopY, x, bodyBottomY);
+
+  // Draw arms
+  line(x, bodyTopY + 2, x - armLength, bodyTopY + 4);
+  line(x, bodyTopY + 2, x + armLength, bodyTopY + 4);
+
+  // Draw legs
+  line(x, bodyBottomY, x - legLength, legBottomY);
+  line(x, bodyBottomY, x + legLength, legBottomY);
 }

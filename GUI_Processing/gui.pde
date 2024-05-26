@@ -127,17 +127,17 @@ public void Volume_Y_position_event(GOption source, GEvent event) { //_CODE_:Vol
   modY = 3;
 } //_CODE_:Volume_Y_position:905159:
 
-public void panel4_Click1(GPanel source, GEvent event) { //_CODE_:panel_Z_position:899736:
+public void extra_modulation_event(GPanel source, GEvent event) { //_CODE_:extra_modulation:899736:
   println("panel4 - GPanel >> GEvent." + event + " @ " + millis());
-} //_CODE_:panel_Z_position:899736:
+} //_CODE_:extra_modulation:899736:
 
-public void Pitch_shift_Z_pos_event(GOption source, GEvent event) { //_CODE_:Pitch_shift_Z_pos:253008:
+public void Pitch_shift_event(GOption source, GEvent event) { //_CODE_:Pitch_shift:253008:
   println("Vol_Z_speed - GOption >> GEvent." + event + " @ " + millis());
   modZ = 0;
   source.setSelected(true);
-} //_CODE_:Pitch_shift_Z_pos:253008:
+} //_CODE_:Pitch_shift:253008:
 
-public void Chorus_fb_Z_pos_event(GOption source, GEvent event) { //_CODE_:Chorus_fb_Z_pos:207221:
+public void Chorus_fb_event(GOption source, GEvent event) { //_CODE_:Chorus_fb:207221:
   println("Rev_Z_speed - GOption >> GEvent." + event + " @ " + millis());
   if (Vol_X_position.isSelected()) {
     modX = 0;
@@ -146,7 +146,11 @@ public void Chorus_fb_Z_pos_event(GOption source, GEvent event) { //_CODE_:Choru
   }
   modZ = 1;
   source.setSelected(true);
-} //_CODE_:Chorus_fb_Z_pos:207221:
+} //_CODE_:Chorus_fb:207221:
+
+public void None_mod_event(GOption source, GEvent event) { //_CODE_:None_mod:385641:
+  println("None_mod - GOption >> GEvent." + event + " @ " + millis());
+} //_CODE_:None_mod:385641:
 
 public void panel5_Click1(GPanel source, GEvent event) { //_CODE_:panel_HR:291612:
   println("panel5 - GPanel >> GEvent." + event + " @ " + millis());
@@ -164,11 +168,16 @@ public void Phaser_event(GOption source, GEvent event) { //_CODE_:Phaser_HR:2442
   source.setSelected(true);
 } //_CODE_:Phaser_HR:244265:
 
-public void Rever_Decay_HR_event(GOption source, GEvent event) { //_CODE_:Rever_Decay_HR:294957:
+public void Reverb_pre_delay_HR_event(GOption source, GEvent event) { //_CODE_:Reverb_pre_delay_HR:294957:
   println("Pitch_HR - GOption >> GEvent." + event + " @ " + millis());
   modHR = 2;
   source.setSelected(true);
-} //_CODE_:Rever_Decay_HR:294957:
+} //_CODE_:Reverb_pre_delay_HR:294957:
+
+public void Cut_Off_HR_event(GOption source, GEvent event) { //_CODE_:Cut_Off_HR:424609:
+  println("Cut_Off_HR - GOption >> GEvent." + event + " @ " + millis());
+  modHR = 3;
+} //_CODE_:Cut_Off_HR:424609:
 
 public void textarea1_change1(GTextArea source, GEvent event) { //_CODE_:Credits_text:788940:
   println("Credits_text - GTextArea >> GEvent." + event + " @ " + millis());
@@ -243,7 +252,7 @@ public void createGUI(){
   Knob_Panel.addControl(label_volume_knob);
   Knob_Panel.addControl(label_clipping_knob);
   Knob_Panel.addControl(label_reverb_knob);
-  Mapping_panel = new GPanel(this, 24, 60, 459, 140, "Input events mapping");
+  Mapping_panel = new GPanel(this, 20, 60, 461, 140, "Input events mapping");
   Mapping_panel.setCollapsible(false);
   Mapping_panel.setDraggable(false);
   Mapping_panel.setText("Input events mapping");
@@ -321,60 +330,74 @@ public void createGUI(){
   panel_Y_position.addControl(Room_Y_position);
   Y_pos_group.addControl(Volume_Y_position);
   panel_Y_position.addControl(Volume_Y_position);
-  panel_Z_position = new GPanel(this, 231, 25, 111, 110, "Z-position");
-  panel_Z_position.setCollapsible(false);
-  panel_Z_position.setDraggable(false);
-  panel_Z_position.setText("Z-position");
-  panel_Z_position.setOpaque(true);
-  panel_Z_position.addEventHandler(this, "panel4_Click1");
-  Z_speed_group = new GToggleGroup();
-  Pitch_shift_Z_pos = new GOption(this, 0, 25, 80, 20);
-  Pitch_shift_Z_pos.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Pitch_shift_Z_pos.setText("Pitch shift");
-  Pitch_shift_Z_pos.setOpaque(false);
-  Pitch_shift_Z_pos.addEventHandler(this, "Pitch_shift_Z_pos_event");
-  Chorus_fb_Z_pos = new GOption(this, 0, 45, 120, 20);
-  Chorus_fb_Z_pos.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Chorus_fb_Z_pos.setText("Chorus Feedback");
-  Chorus_fb_Z_pos.setOpaque(false);
-  Chorus_fb_Z_pos.addEventHandler(this, "Chorus_fb_Z_pos_event");
-  Z_speed_group.addControl(Pitch_shift_Z_pos);
-  Pitch_shift_Z_pos.setSelected(true);
-  panel_Z_position.addControl(Pitch_shift_Z_pos);
-  Z_speed_group.addControl(Chorus_fb_Z_pos);
-  panel_Z_position.addControl(Chorus_fb_Z_pos);
-  panel_HR = new GPanel(this, 346, 25, 111, 110, "Heart-Rate");
+  extra_modulation = new GPanel(this, 231, 25, 111, 110, "Extra Modulation");
+  extra_modulation.setCollapsible(false);
+  extra_modulation.setDraggable(false);
+  extra_modulation.setText("Extra Modulation");
+  extra_modulation.setOpaque(true);
+  extra_modulation.addEventHandler(this, "extra_modulation_event");
+  extra_mod_group = new GToggleGroup();
+  Pitch_shift = new GOption(this, 0, 25, 80, 20);
+  Pitch_shift.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Pitch_shift.setText("Pitch shift");
+  Pitch_shift.setOpaque(false);
+  Pitch_shift.addEventHandler(this, "Pitch_shift_event");
+  Chorus_fb = new GOption(this, 0, 45, 120, 20);
+  Chorus_fb.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Chorus_fb.setText("Chorus Feedback");
+  Chorus_fb.setOpaque(false);
+  Chorus_fb.addEventHandler(this, "Chorus_fb_event");
+  None_mod = new GOption(this, 0, 65, 120, 20);
+  None_mod.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  None_mod.setText("None");
+  None_mod.setOpaque(false);
+  None_mod.addEventHandler(this, "None_mod_event");
+  extra_mod_group.addControl(Pitch_shift);
+  Pitch_shift.setSelected(true);
+  extra_modulation.addControl(Pitch_shift);
+  extra_mod_group.addControl(Chorus_fb);
+  extra_modulation.addControl(Chorus_fb);
+  extra_mod_group.addControl(None_mod);
+  extra_modulation.addControl(None_mod);
+  panel_HR = new GPanel(this, 346, 25, 113, 110, "Heart-Rate");
   panel_HR.setCollapsible(false);
   panel_HR.setDraggable(false);
   panel_HR.setText("Heart-Rate");
   panel_HR.setOpaque(true);
   panel_HR.addEventHandler(this, "panel5_Click1");
   group_HR = new GToggleGroup();
-  Filter_HR = new GOption(this, 0, 25, 107, 20);
+  Filter_HR = new GOption(this, 0, 25, 113, 20);
   Filter_HR.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   Filter_HR.setText("Filter");
   Filter_HR.setOpaque(false);
   Filter_HR.addEventHandler(this, "Filter_HR_event");
-  Phaser_HR = new GOption(this, 0, 45, 107, 20);
+  Phaser_HR = new GOption(this, 0, 45, 113, 20);
   Phaser_HR.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Phaser_HR.setText("Phaser's period");
+  Phaser_HR.setText("Phaser's rate");
   Phaser_HR.setOpaque(false);
   Phaser_HR.addEventHandler(this, "Phaser_event");
-  Rever_Decay_HR = new GOption(this, 0, 65, 107, 20);
-  Rever_Decay_HR.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  Rever_Decay_HR.setText("Reverb Decay");
-  Rever_Decay_HR.setOpaque(false);
-  Rever_Decay_HR.addEventHandler(this, "Rever_Decay_HR_event");
+  Reverb_pre_delay_HR = new GOption(this, 0, 65, 113, 20);
+  Reverb_pre_delay_HR.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Reverb_pre_delay_HR.setText("Reverb pre delay");
+  Reverb_pre_delay_HR.setOpaque(false);
+  Reverb_pre_delay_HR.addEventHandler(this, "Reverb_pre_delay_HR_event");
+  Cut_Off_HR = new GOption(this, 0, 85, 114, 20);
+  Cut_Off_HR.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  Cut_Off_HR.setText("Cut off oscillation");
+  Cut_Off_HR.setOpaque(false);
+  Cut_Off_HR.addEventHandler(this, "Cut_Off_HR_event");
   group_HR.addControl(Filter_HR);
   Filter_HR.setSelected(true);
   panel_HR.addControl(Filter_HR);
   group_HR.addControl(Phaser_HR);
   panel_HR.addControl(Phaser_HR);
-  group_HR.addControl(Rever_Decay_HR);
-  panel_HR.addControl(Rever_Decay_HR);
+  group_HR.addControl(Reverb_pre_delay_HR);
+  panel_HR.addControl(Reverb_pre_delay_HR);
+  group_HR.addControl(Cut_Off_HR);
+  panel_HR.addControl(Cut_Off_HR);
   Mapping_panel.addControl(panel_X_position);
   Mapping_panel.addControl(panel_Y_position);
-  Mapping_panel.addControl(panel_Z_position);
+  Mapping_panel.addControl(extra_modulation);
   Mapping_panel.addControl(panel_HR);
   labelTitle = new GLabel(this, 150, 9, 200, 45);
   labelTitle.setIcon("CENTER", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
@@ -409,14 +432,16 @@ GOption Panning_Y_position;
 GOption Mix_Y_position; 
 GOption Room_Y_position; 
 GOption Volume_Y_position; 
-GPanel panel_Z_position; 
-GToggleGroup Z_speed_group; 
-GOption Pitch_shift_Z_pos; 
-GOption Chorus_fb_Z_pos; 
+GPanel extra_modulation; 
+GToggleGroup extra_mod_group; 
+GOption Pitch_shift; 
+GOption Chorus_fb; 
+GOption None_mod; 
 GPanel panel_HR; 
 GToggleGroup group_HR; 
 GOption Filter_HR; 
 GOption Phaser_HR; 
-GOption Rever_Decay_HR; 
+GOption Reverb_pre_delay_HR; 
+GOption Cut_Off_HR; 
 GLabel labelTitle; 
 GTextArea Credits_text; 
