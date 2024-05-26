@@ -23,7 +23,7 @@ o.outDevice = "ASIO : Hi-Fi Cable Output";
 (
 // Sound synthesis
 SynthDef(\synth, {
-	|note, vel, gate = 1, volume = 1, outBus = 0, pan = 0, dry = 0.7, fxBus|
+	|note, vel, gate = 1, volume = 1, outBus = 0, pan = 0, mix = 0.7, fxBus|
 	var sig;
 
 	// Output signal definition (frequency decay on Note Off "commented")
@@ -56,10 +56,10 @@ SynthDef(\synth, {
 
 	// Stereo OUT (dry %)
 	sig = Pan2.ar(in: sig, pos: pan);
-	Out.ar(bus: outBus, channelsArray: dry * sig);
+	Out.ar(bus: outBus, channelsArray: mix * sig);
 
 	// FX parallel (wet %)
-	Out.ar(bus: fxBus, channelsArray: (1.0 - dry)*sig);
+	Out.ar(bus: fxBus, channelsArray: (1.0 - mix)*sig);
 }).add;
 
 // Signal processing
@@ -110,6 +110,8 @@ SynthDef(\FX, {
 
 // Dictionary definition of all Synth instances
 ~notes = Dictionary.new(n: 0);
+
+~lastPitchShift = 0;
 
 // Removing all MIDIdefs
 MIDIdef.freeAll;
@@ -172,7 +174,7 @@ OSCdef(\receiver, {
 		~notes.keysValuesDo{
 			|key, value|
 
-			value.set(\dry, msg[2]);
+			value.set(\mix, msg[2]);
 		};
 	};
 
@@ -190,12 +192,12 @@ OSCdef(\receiver, {
 		};
 	};
 
-	// Filter freq (chorus rate) in JUCE
+	// Filter freq (chorus rate) -> msg[5]
 
-	// Pitch shift - in semitones (MAKE VARIABLE FOR lastShift)
-	if (msg[6].isNaN == false){
-
+	// Pitch shift - in semitones
+	if (msg[6].isNaN == false && msg[6] != ~lastPitchShift){
 		//("Pitch shift from " ++ msg[6] ++ " to " ++ round(msg[6])).postln;
+		~lastPitchShift = msg[6];
 
 		~notes.keysValuesDo{
 			|key, value|
@@ -205,14 +207,11 @@ OSCdef(\receiver, {
 				|item|
 				//shift = item;
 
-				value.set(\note, item + round(msg[6]));
-
-				("Shift " ++ item ++ " new note " ++ item + round(msg[6])).postln;
+				//("Shift " ++ item ++ " new note " ++ item + msg[6]).postln;
+				value.set(\note, item + msg[6]);
 			});
 		};
 	};
-
-	// Phaser rate in JUCE
 
 	// Reverb decay in ms (pre-delay?)
 	if (msg[8].isNaN == false) {
@@ -220,6 +219,6 @@ OSCdef(\receiver, {
 		~effectSynth.set(\preDelay, msg[8]);
 	};
 
-}, '/Effects_Values');
+}, '/Effects_Values'/*, NetAddr("127.0.0.1", 53398)*/);
 
 )
