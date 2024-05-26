@@ -15,31 +15,23 @@
 //==============================================================================
 /**
 */
-class EffectsAudioProcessorEditor  : public juce::AudioProcessorEditor
-    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-    // OSCReceiver inheritances
-    /*
-    , private juce::OSCReceiver, juce::OSCReceiver::ListenerWithOSCAddress<juce::OSCReceiver::MessageLoopCallback>
-    */
-
-    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+class EffectsAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    EffectsAudioProcessorEditor (EffectsAudioProcessor&);
+    EffectsAudioProcessorEditor(EffectsAudioProcessor&);
     ~EffectsAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     EffectsAudioProcessor& audioProcessor;
-    
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
+
     // Sliders declaration
     juce::Slider sliderChorusRate;
     juce::Slider sliderChorusDepth;
@@ -79,15 +71,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderPhaserFeedbackAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderPhaserMixAttachment;
 
-    // OSC receiver
-    /*
-    juce::DatagramSocket ds;
-
-    void showConnectionErrorMessage(const juce::String& messageText);
-    void oscMessageReceived(const juce::OSCMessage& message) override;    // virtual function from ListenerWithOSCAddress
-    */
-
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EffectsAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectsAudioProcessorEditor)
 };

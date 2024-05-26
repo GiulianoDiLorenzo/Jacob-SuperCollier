@@ -8,17 +8,16 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
 //==============================================================================
-EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+EffectsAudioProcessorEditor::EffectsAudioProcessorEditor(EffectsAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize(900, 600);
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
+
     // Sliders and labels description for parameter 1
     sliderChorusRate.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);             // SliderStyle component
     sliderChorusRate.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 100, 20);          // TextEntryBoxPosition component, read-only boolean, width, height
@@ -111,16 +110,6 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     sliderPhaserCentreFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserCentreFrequency", sliderPhaserCentreFrequency);
     sliderPhaserFeedbackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserFeedback", sliderPhaserFeedback);
     sliderPhaserMixAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserMix", sliderPhaserMix);
-    
-    // OSC listeners
-    /*
-    ds.bindToPort(57109, "127.0.0.1");      // UDP port and IP address
-    if (!connectToSocket(ds))
-        showConnectionErrorMessage("Error");
-
-    // Example
-    addListener(this, "/reverb/dry");       // listener
-    */
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
@@ -130,28 +119,28 @@ EffectsAudioProcessorEditor::~EffectsAudioProcessorEditor()
 }
 
 //==============================================================================
-void EffectsAudioProcessorEditor::paint (juce::Graphics& g)
+void EffectsAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText (" ", getLocalBounds(), juce::Justification::centred, 1);
+    g.setColour(juce::Colours::white);
+    g.setFont(15.0f);
+    g.drawFittedText(" ", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void EffectsAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
+
     // Specifying all GUI components location
     labelChorusRate.setBounds(5, 50, 150, 20);         // setBounds needs x_position, y_position, width, height  
     sliderChorusRate.setBounds(10, 80, 100, 100);
 
-    labelChorusDepth.setBounds(155, 50, 150, 20); 
+    labelChorusDepth.setBounds(155, 50, 150, 20);
     sliderChorusDepth.setBounds(150, 80, 100, 100);
 
     labelChorusCentreDelay.setBounds(275, 50, 150, 20);
@@ -180,23 +169,3 @@ void EffectsAudioProcessorEditor::resized()
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-// User-defined method to respond to incoming OSC messages
-
-/*
-void EffectsAudioProcessorEditor::oscMessageReceived(const juce::OSCMessage& message)
-{
-    // Example
-
-    if (message.getAddressPattern() == "/reverb/dry")
-    {
-        drySlider.setValue(jlimit(0.0f, 1.0f, message[0].getFloat32()));
-        processor.set_dry(drySlider.getValue());
-    }
-
-}
-*/
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

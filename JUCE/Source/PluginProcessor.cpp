@@ -12,16 +12,16 @@
 //==============================================================================
 EffectsAudioProcessor::EffectsAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    )
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
+
     // Instatiation of the AudioProcessorValueTreeState in the constructor
     , apvts(*this, nullptr, "Parameters", createParameters())
 
@@ -31,10 +31,23 @@ EffectsAudioProcessor::EffectsAudioProcessor()
     // Instatiation of the phaser in the constructor
     , phaser()
 
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #endif
 {
+    // OSC listeners
+
+    ds.bindToPort(57120, "127.0.0.1");      // UDP port and IP address
+    if (!connectToSocket(ds))
+        showConnectionErrorMessage("Error");
+
+    juce::OSCReceiver::addListener(this, "/Effects_Values");        // listener
+
+    juce::Logger::writeToLog("MainComponent constructed!");
+
 }
+
+
 
 EffectsAudioProcessor::~EffectsAudioProcessor()
 {
@@ -48,29 +61,29 @@ const juce::String EffectsAudioProcessor::getName() const
 
 bool EffectsAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool EffectsAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool EffectsAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double EffectsAudioProcessor::getTailLengthSeconds() const
@@ -81,7 +94,7 @@ double EffectsAudioProcessor::getTailLengthSeconds() const
 int EffectsAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int EffectsAudioProcessor::getCurrentProgram()
@@ -89,27 +102,27 @@ int EffectsAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void EffectsAudioProcessor::setCurrentProgram (int index)
+void EffectsAudioProcessor::setCurrentProgram(int index)
 {
 }
 
-const juce::String EffectsAudioProcessor::getProgramName (int index)
+const juce::String EffectsAudioProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void EffectsAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void EffectsAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void EffectsAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void EffectsAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
+
     // DSP chorus preparation with ProcessSpec component
     lastSampleRate = sampleRate;
     juce::dsp::ProcessSpec spec;
@@ -118,13 +131,13 @@ void EffectsAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
-    
+
     // DSP methods of initialisation
     chorus.prepare(spec);
     chorus.reset();
     phaser.prepare(spec);
     phaser.reset();
-    
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 }
 
@@ -135,35 +148,35 @@ void EffectsAudioProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool EffectsAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool EffectsAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
+#if JucePlugin_IsMidiEffect
+    juce::ignoreUnused(layouts);
     return true;
-  #else
+#else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
     // Some plugin hosts, such as certain GarageBand versions, will only
     // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
+#endif
 
     return true;
-  #endif
+#endif
 }
 #endif
 
-void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void EffectsAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
@@ -173,7 +186,7 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+        buffer.clear(i, 0, buffer.getNumSamples());
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -183,28 +196,36 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+        auto* channelData = buffer.getWritePointer(channel);
 
         // ..do something to the data...
     }
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
+
     // Input AudioBlock buffer
     juce::dsp::AudioBlock <float> block(buffer);    // AudioBlock component for processing the input buffer
 
-    // Reading the necessary parameters of the AudioProcessValueTreeState
-    float chorusRate = *apvts.getRawParameterValue("ID_ChorusRate");
-    float chorusDepth = *apvts.getRawParameterValue("ID_ChorusDepth");
-    float chorusCentreDelay = *apvts.getRawParameterValue("ID_ChorusCentreDelay");
-    float chorusFeedback = *apvts.getRawParameterValue("ID_ChorusFeedback");
-    float chorusMix = *apvts.getRawParameterValue("ID_ChorusMix");
+    juce::AudioBuffer<float> bufferChorus = buffer;
+    juce::AudioBuffer<float> bufferPhaser = buffer;
+    juce::dsp::AudioBlock<float> blockChorus(bufferChorus);
+    juce::dsp::AudioBlock<float> blockPhaser(bufferPhaser);
+    //juce::dsp::ProcessContextReplacing<float> ctxChorus(blockChorus);
+    //juce::dsp::ProcessContextReplacing<float> ctxPhaser(blockPhaser);
 
-    float phaserRate = *apvts.getRawParameterValue("ID_PhaserRate");
-    float phaserDepth = *apvts.getRawParameterValue("ID_PhaserDepth");
-    float phaserCentreFrequency = *apvts.getRawParameterValue("ID_PhaserCentreFrequency");
-    float phaserFeedback = *apvts.getRawParameterValue("ID_PhaserFeedback");
-    float phaserMix = *apvts.getRawParameterValue("ID_PhaserMix");
+    // Reading the necessary parameters of the AudioProcessValueTreeState
+    chorusRate = *apvts.getRawParameterValue("ID_ChorusRate");
+    chorusDepth = *apvts.getRawParameterValue("ID_ChorusDepth");
+    chorusCentreDelay = *apvts.getRawParameterValue("ID_ChorusCentreDelay");
+    chorusFeedback = *apvts.getRawParameterValue("ID_ChorusFeedback");
+    chorusMix = *apvts.getRawParameterValue("ID_ChorusMix");
+
+    phaserRate = *apvts.getRawParameterValue("ID_PhaserRate");
+    phaserDepth = *apvts.getRawParameterValue("ID_PhaserDepth");
+    phaserCentreFrequency = *apvts.getRawParameterValue("ID_PhaserCentreFrequency");
+    phaserFeedback = *apvts.getRawParameterValue("ID_PhaserFeedback");
+    phaserMix = *apvts.getRawParameterValue("ID_PhaserMix");
+
 
     // Updating the chorus state
     chorus.setRate(chorusRate);
@@ -212,7 +233,7 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     chorus.setCentreDelay(chorusCentreDelay);
     chorus.setFeedback(chorusFeedback);
     chorus.setMix(chorusMix);
-    
+
     // Updating the phaser state
     phaser.setRate(phaserRate);
     phaser.setDepth(phaserDepth);
@@ -221,9 +242,17 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     phaser.setMix(phaserMix);
 
     // Applying chorus, phaser and panner on input samples
-    chorus.process(juce::dsp::ProcessContextReplacing<float>(block));
-    phaser.process(juce::dsp::ProcessContextReplacing<float>(block));
-    
+    chorus.process(juce::dsp::ProcessContextReplacing<float>(blockChorus));
+    phaser.process(juce::dsp::ProcessContextReplacing<float>(blockPhaser));
+
+    // Summing original buffer (50%) with chorus (25%) and phaser (25%)
+    for (int i = 0; i < totalNumOutputChannels; i++) {
+
+        auto outputBuffer = buffer.getWritePointer(i);
+        for (int j = 0; j < buffer.getNumSamples(); j++)
+            outputBuffer[j] = 0.5 * block.getSample(i, j) + 0.25 * blockChorus.getSample(i, j) + 0.25 * blockPhaser.getSample(i, j);
+    }
+
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 }
@@ -236,18 +265,18 @@ bool EffectsAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* EffectsAudioProcessor::createEditor()
 {
-    return new EffectsAudioProcessorEditor (*this);
+    return new EffectsAudioProcessorEditor(*this);
 }
 
 //==============================================================================
-void EffectsAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void EffectsAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void EffectsAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void EffectsAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -269,18 +298,57 @@ juce::AudioProcessorValueTreeState::ParameterLayout EffectsAudioProcessor::creat
 
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusRate", "Chorus Rate", 0.0f, 20.0f, 1.0f));     // ID, name, min_value, max_value, default_value
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusDepth", "Chorus Depth", 0.0f, 1.0f, 0.5f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusCentreDelay", "Chorus Centre Delay", 1.0, 100.0, 50.0));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusCentreDelay", "Chorus Centre Delay", 1.0, 99.0, 50.0));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusFeedback", "Chorus Feedback", -1.0f, 1.0f, 0.0f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusMix", "Chorus Mix", 0.0f, 1.0f, 0.5f));
-    
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusMix", "Chorus Mix", 0.0f, 1.0f, 1.0f));
+
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserRate", "Phaser Rate", 0.0f, 15.0f, 1.5f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserDepth", "Phaser Depth", 0.0f, 1.0f, 0.5f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserCentreFrequency", "Phaser Centre Frequency", 0.0f, 5000.0f, 200.0f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserFeedback", "Phaser Feedback", -1.0f, 1.0f, 0.0f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserMix", "Phaser Mix", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_PhaserMix", "Phaser Mix", 0.0f, 1.0f, 1.0f));
+
+    return { parameters.begin(), parameters.end() };
+}
+
+// Definition of incoming OSC messages response
+
+void EffectsAudioProcessor::oscMessageReceived(const juce::OSCMessage& message)
+{
     
-    return {parameters.begin(), parameters.end()};
+    // Reading phaser rate from argument at 6
+    if (!std::isnan(message[6].getFloat32()) ) {
+        phaserRate = message[6].getFloat32();
+        juce::Logger::writeToLog("phaserRate : " + juce::String(phaserRate));
+
+        juce::Logger::writeToLog("phaserRate : " + juce::String(phaserRate));
+    }
+    if (!std::isnan(message[8].getFloat32())) {
+        // Reading chorus feedback from argument at 8
+        chorusFeedback = message[8].getFloat32();
+        //juce::String messageChorus = "chorusFeedback : %.4f" + juce::String(chorusFeedback);
+        juce::Logger::writeToLog("chorusFeedback : " + juce::String(chorusFeedback));
+    }
+  
+    // Handle incoming OSC messages here
+    
+    juce::String address = message.getAddressPattern().toString();
+    juce::String args;
+    for (int i = 0; i < message.size(); ++i)
+    {
+        args += juce::String(message[i].getFloat32()) + " ";
+    }
+    juce::Logger::writeToLog("Received OSC Message: " + address + " " + args);
+    
+
+
+}
+
+// Error message display
+
+void EffectsAudioProcessor::showConnectionErrorMessage(const juce::String& messageText)
+{
+    juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, "Connection error", messageText, "OK");
 }
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
