@@ -15,23 +15,23 @@
 //==============================================================================
 /**
 */
-class EffectsAudioProcessorEditor : public juce::AudioProcessorEditor
+class EffectsAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
-    EffectsAudioProcessorEditor(EffectsAudioProcessor&);
+    EffectsAudioProcessorEditor (EffectsAudioProcessor&);
     ~EffectsAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint(juce::Graphics&) override;
+    void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     EffectsAudioProcessor& audioProcessor;
-
+    
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    
     // Sliders declaration
     juce::Slider sliderChorusRate;
     juce::Slider sliderChorusDepth;
@@ -73,5 +73,5 @@ private:
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectsAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EffectsAudioProcessorEditor)
 };
