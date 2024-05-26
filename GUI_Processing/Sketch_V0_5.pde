@@ -353,11 +353,11 @@ void change_other_mod(){
   else if (modZ == 1){
     b_chorus = -1 ;
     a_chorus = + 1 ;
-    chorus_fb = a_chorus*z + b_chorus;
+    chorus_fb = a_chorus*x/1000 + b_chorus;
     //println("chorus_fb = " + chorus_fb);
   }
   else if (modZ == 2){
-    println("No extra modulation wanted");
+    //println("No extra modulation wanted");
   }
   else  {println("Error in modZ value"); exit();}
 }
@@ -493,6 +493,7 @@ void setNan() {
   
   if (listZ.get(0) == 0 )      {pitch_shift = Float.NaN;}
   else if (listZ.get(0) == 1 ) {chorus_fb = Float.NaN;}
+ // else                         {pitch_shift = Float.NaN; chorus_fb = Float.NaN;}
   
   if (listZ.get(1) == 0 )      {pitch_shift = Float.NaN;}
   else if (listZ.get(1) == 1 ) {chorus_fb = Float.NaN;}

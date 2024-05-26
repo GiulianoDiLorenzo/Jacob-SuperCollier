@@ -150,6 +150,7 @@ public void Chorus_fb_event(GOption source, GEvent event) { //_CODE_:Chorus_fb:2
 
 public void None_mod_event(GOption source, GEvent event) { //_CODE_:None_mod:385641:
   println("None_mod - GOption >> GEvent." + event + " @ " + millis());
+  modZ = 2;
 } //_CODE_:None_mod:385641:
 
 public void panel5_Click1(GPanel source, GEvent event) { //_CODE_:panel_HR:291612:
