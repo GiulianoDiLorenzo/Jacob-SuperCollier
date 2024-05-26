@@ -118,7 +118,7 @@ public void setup(){
   //========================================//
   //Setting the frequency limits of our filter
   //========================================//
-  min_cut_off_freq = 500; // [Hz]
+  min_cut_off_freq = 200; // [Hz]
   max_cut_off_freq = 2000; // [Hz]
 
 
