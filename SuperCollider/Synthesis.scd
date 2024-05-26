@@ -98,7 +98,9 @@ SynthDef(\FX, {
 	// Stereo OUT
 	Out.ar(bus: outBus, channelsArray: sig);
 }).add;
+)
 
+(
 // Parallel bus
 ~effectBus = Bus.audio(server: s, numChannels: 2);
 //~effectBus.index;
@@ -153,11 +155,11 @@ OSCdef.freeAll;
 OSCdef(\receiver, {
 	|msg, time, addr, port|
 
-	("OSC incoming message: " ++ msg).postln;
-	("Coming from address " ++ addr ++ " and port " ++ port).postln;
+	//("OSC incoming message: " ++ msg).postln;
+	//("Coming from address " ++ addr ++ " and port " ++ port).postln;
 
 	if (msg[1].isNaN == false){
-		("Panning: " ++ msg[1]).postln;
+		//("Panning: " ++ msg[1]).postln;
 		~notes.keysValuesDo{
 			|key, value|
 
@@ -166,7 +168,7 @@ OSCdef(\receiver, {
 	};
 
 	if (msg[2].isNaN == false){
-		("Mix: " ++ msg[2]).postln;
+		//("Mix: " ++ msg[2]).postln;
 		~notes.keysValuesDo{
 			|key, value|
 
@@ -175,46 +177,46 @@ OSCdef(\receiver, {
 	};
 
 	if (msg[3].isNaN == false){
-		("Room: " ++ msg[3]).postln;
+		//("Room: " ++ msg[3]).postln;
 		~effectSynth.set(\room, msg[3]);
 	};
 
 	if (msg[4].isNaN == false){
-		("Volume: " ++ msg[4]).postln;
+		//("Volume: " ++ msg[4]).postln;
 		~notes.keysValuesDo{
 			|key, value|
 
-			value.set(\volume, msg[4]);
+			value.set(\volume, (msg[4] + 20).linlin(0.5, 19.6, 0.0, 1.0));
 		};
-
 	};
 
 	// Filter freq (chorus rate) in JUCE
 
-	// Pitch shift - in semitones
-	//if (msg[6].isNaN == false){
-	//	~notes.keysValuesDo{
-	//		|key, value|
-	//		var shift;
-	//
-	//		value.get(\note, {
-	//			|item|
-	//			shift = item;
-	//		});
-	//
-	//		shift = shift + msg[6];
-	//
-	//		("New note: " ++ shift).postln;
-	//
-	//		value.set(\note, shift);
-	//	};
-	//};
+	// Pitch shift - in semitones (MAKE VARIABLE FOR lastShift)
+	if (msg[6].isNaN == false){
+
+		//("Pitch shift from " ++ msg[6] ++ " to " ++ round(msg[6])).postln;
+
+		~notes.keysValuesDo{
+			|key, value|
+			var shift;
+
+			value.get(\note, {
+				|item|
+				//shift = item;
+
+				value.set(\note, item + round(msg[6]));
+
+				("Shift " ++ item ++ " new note " ++ item + round(msg[6])).postln;
+			});
+		};
+	};
 
 	// Phaser rate in JUCE
 
 	// Reverb decay in ms (pre-delay?)
 	if (msg[8].isNaN == false) {
-		("Reverb decay: " ++ msg[8]).postln;
+		//("Reverb decay: " ++ msg[8]).postln;
 		~effectSynth.set(\preDelay, msg[8]);
 	};
 
