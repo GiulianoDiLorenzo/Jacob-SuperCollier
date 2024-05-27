@@ -14,16 +14,18 @@ graph LR
     
     Musician --> MIDI_Input
     MIDI_Input --> SuperCollider
-    SuperCollider -->|param| Juce
+    SuperCollider -->|synth| Juce
     
-    Juce -->|speaker| Speaker
+    Juce --> Speaker
 
-    subgraph System
+    subgraph Input System
+        Dancer
         Arduino
+        Sensors
     end
     
     subgraph MIDI_System
-        USER --> MIDI_Input
+        Musician --> MIDI_Input
     end
 ```
 
