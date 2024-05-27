@@ -78,7 +78,7 @@ Sensors --> FX_properties
 
 subgraph FX_Properties
     room
-    pre delay
+    pre_delay
     end
 
 
