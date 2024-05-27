@@ -64,7 +64,7 @@ graph LR
         mix
         volume
         end
-Properties --> SynthDef\synth
+Properties --> SynthDef \ synth
     
 ```
 
