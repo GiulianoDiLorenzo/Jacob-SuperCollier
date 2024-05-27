@@ -123,7 +123,7 @@ Finally, in order to use every components in this repository, you need to follow
 * check that the serial monitor is receiving values correctly
 * close the serial monitor display
 * open the sketch code in Processing and run it
-* check that you can see the GUI (PHOTO), and that the OSC messages are sent, you can check the Processing's console
+* check that you can see the GUI, and that the OSC messages are sent, you can check the Processing's console
 * open the SuperCollider script, boot the server and run every block
 * (Optional) open the backing track code, that offers you a 1-minute track to play along with
 * open the standalone plugin and setup "Hi-Fi Cable Output" as input source
