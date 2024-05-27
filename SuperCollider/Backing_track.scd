@@ -1,23 +1,3 @@
-(
-// Server boot
-Server.local.boot;
-
-// Hardware INPUT configuration
-s.options.numInputBusChannels_(numChannels: 0);
-
-// Hardware OUTPUT configuration
-s.options.numOutputBusChannels_(numChannels: 2);
-
-// Server reboot
-Server.local.reboot;
-)
-
-// Speakers calibration
-{PinkNoise.ar(mul: 1) ! 2}.play;
-
-// Stethoscope
-s.scope(rate: \audio, numChannels: 2);
-
 // SOUND SYNTHESIS FOR ARPEGGIATOR
 (
 // Drums sounds
@@ -124,6 +104,8 @@ SynthDef(\pad, {
 }).add;
 )
 
+
+// BACKING TRACK
 (
 // BPM definition
 ~bpm = 85;
@@ -449,6 +431,7 @@ t = TempoClock(~bpm/60);
 	})
 }.r;
 
+// Playing all instruments
 ~drums.play(t, quant: 4);
 ~bass.play(t, quant: 4);
 ~lead.play(t, quant: 4);
