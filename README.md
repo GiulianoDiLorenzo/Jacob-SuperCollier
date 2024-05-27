@@ -64,7 +64,8 @@ graph LR
         mix
         volume
     end
-Properties --> SynthDef"\synth"
+
+Synth_Properties --> SynthDef"\synth"
 
 SynthDef"\synth" --> Dictionary"notes"
 
