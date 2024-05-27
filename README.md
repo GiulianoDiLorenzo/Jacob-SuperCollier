@@ -55,19 +55,15 @@ This system consists of:
 
 ```mermaid
 graph LR 
-    Sensors --> note
-    Sensors --> vel
-    Sensors --> pan
-    Sensors --> mix
-    Sensors --> volume
-
-subgraph Container
-        A[a]
-        B[b]
-        C[c]
-        D[d]
-    end
+    Sensors --> Properties
     
+    subgraph Properties
+        note
+        vel
+        pan 
+        mix
+        volume
+        end
     
 ```
 
