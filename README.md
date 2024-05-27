@@ -12,7 +12,7 @@ graph LR
     Processing -->|OSC| SuperCollider
     Processing -->|OSC| Juce
 
-    SuperCollider -->|param| JUCE
+    SuperCollider -->|param| Juce
     SuperCollider -->|MIDI| MIDI_Input
     MIDI_Input -->|USER| USER
     
