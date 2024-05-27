@@ -154,6 +154,7 @@ An approach might consist in setting up the Wi-Fi communication, in order to get
 ## Credentials
 
 This computer system is the result of the project work for "Computer Music - Languages and Systems" exam at Politecnico di Milano, made by "Jacob SuperCollier" team.
+
 "Jacob SuperCollier" is:
 
 * Cagnetta Angelica
