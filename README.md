@@ -31,6 +31,9 @@ graph LR
         SuperCollider
         Juce
     end
+    subgraph User Interface
+        Processing
+    end
 ```
 
 You may appreciate a demonstration video:
