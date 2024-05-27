@@ -152,7 +152,7 @@ However we could not manage to fix it before the deadline.
 Moreover, it would be interesting to find a better packaging for the Arduino board and its sensors to reduce the discomfort of the actual setup.
 An approach might consist in setting up the Wi-Fi communication, in order to get rid of the cables. 
 
-## Credentials
+## Credits
 
 This computer system is the result of the project work for "Computer Music - Languages and Systems" exam at Politecnico di Milano, made by "Jacob SuperCollier" team.
 
