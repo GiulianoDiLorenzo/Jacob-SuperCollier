@@ -54,7 +54,9 @@ This system consists of:
  * a sound synthesis module made in SuperCollider
 
 ```mermaid
+  graph LR 
     MIDI(MIDI Note/Velocity) -->|frequency| SawOsc[\"SawOsc\"]
+
     SawOsc --> EnvADSR[\"Env.adsr (amp)\"] --> Pan2Dry[\"Pan2 (stereo)\"]
 
     
