@@ -55,9 +55,8 @@ This system consists of:
 
 ```mermaid
   graph LR 
-    MIDI(MIDI Note/Velocity) -->|frequency| SawOsc[\"SawOsc\"]
+    MIDI -->|frequency| SawOsc
 
-    SawOsc --> EnvADSR[\"Env.adsr (amp)\"] --> Pan2Dry[\"Pan2 (stereo)\"]
 
     
 ```
