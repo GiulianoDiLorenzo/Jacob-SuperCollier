@@ -15,7 +15,7 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize(900, 600);
+    setSize(750, 500);
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     
@@ -100,13 +100,13 @@ EffectsAudioProcessorEditor::EffectsAudioProcessorEditor (EffectsAudioProcessor&
     addAndMakeVisible(labelPhaserMix);
 
     // Attachments linking
-    sliderChorusRateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusRate", sliderChorusRate);       // AudioProcessorValueTreeState inside the Processor, parameter ID (from ParameterLayout), GUI slider
+    sliderChorusRateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusRate", sliderChorusRate);       // AudioProcessorValueTreeState, parameter ID, slider
     sliderChorusDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusDepth", sliderChorusDepth);
     sliderChorusCentreDelayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusCentreDelay", sliderChorusCentreDelay);
     sliderChorusFeedbackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusFeedback", sliderChorusFeedback);
     sliderChorusMixAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_ChorusMix", sliderChorusMix);
 
-    sliderPhaserRateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserRate", sliderPhaserRate);       // AudioProcessorValueTreeState inside the Processor, parameter ID (from ParameterLayout), GUI slider
+    sliderPhaserRateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserRate", sliderPhaserRate);
     sliderPhaserDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserDepth", sliderPhaserDepth);
     sliderPhaserCentreFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserCentreFrequency", sliderPhaserCentreFrequency);
     sliderPhaserFeedbackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ID_PhaserFeedback", sliderPhaserFeedback);

@@ -61,7 +61,7 @@ public:
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     
-    // AudioProcessValueTreeState class declaration for implementing Editor <-> Processor
+    // AudioProcessValueTreeState class declaration for implementing Editor <-> Processor communication
     juce::AudioProcessorValueTreeState apvts;
 
     // Method for creating and associating all parameters of the plugin

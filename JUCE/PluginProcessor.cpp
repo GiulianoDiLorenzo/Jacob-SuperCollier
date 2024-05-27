@@ -35,12 +35,13 @@ EffectsAudioProcessor::EffectsAudioProcessor()
 #endif
 {
     // OSC listeners
-    ds.bindToPort(57120, "127.0.0.1");      // UDP port and IP address
+    ds.bindToPort(57120, "127.0.0.1");
     if (!connectToSocket(ds))
         showConnectionErrorMessage("Error");
 
     juce::OSCReceiver::addListener(this, "/Effects_Values");        // listener
     juce::Logger::writeToLog("MainComponent constructed!");
+
 }
 
 
@@ -120,7 +121,7 @@ void EffectsAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     
     // DSP chorus preparation with ProcessSpec component
-    lastSampleRate = sampleRate;
+    lastSampleRate = (float) sampleRate;
     juce::dsp::ProcessSpec spec;
 
     // Specifications need sampleRate, maximumBlockSize, numChannels
@@ -206,11 +207,9 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     juce::AudioBuffer<float> bufferPhaser = buffer;
     juce::dsp::AudioBlock<float> blockChorus(bufferChorus);
     juce::dsp::AudioBlock<float> blockPhaser(bufferPhaser);
-    //juce::dsp::ProcessContextReplacing<float> ctxChorus(blockChorus);
-    //juce::dsp::ProcessContextReplacing<float> ctxPhaser(blockPhaser);
-
-    // Reading the necessary parameters of the AudioProcessValueTreeState
-    chorusRate = *apvts.getRawParameterValue("ID_ChorusRate");
+    
+    // Reading the necessary parameters of the AudioProcessorValueTreeState
+    chorusRate = *apvts.getRawParameterValue("ID_ChorusRate");      // getRawParameterValue returns the pointer to the parameter
     chorusDepth = *apvts.getRawParameterValue("ID_ChorusDepth");
     chorusCentreDelay = *apvts.getRawParameterValue("ID_ChorusCentreDelay");
     chorusFeedback = *apvts.getRawParameterValue("ID_ChorusFeedback");
@@ -237,16 +236,15 @@ void EffectsAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     phaser.setFeedback(phaserFeedback);
     phaser.setMix(phaserMix);
 
-    // Applying chorus, phaser and panner on input samples
+    // Applying chorus, phaser on input samples
     chorus.process(juce::dsp::ProcessContextReplacing<float>(blockChorus));
     phaser.process(juce::dsp::ProcessContextReplacing<float>(blockPhaser));
 
-    // Summing original buffer (50%) with chorus (25%) and phaser (25%)
+    // Summing original buffer (80%) with chorus (10%) and phaser (10%)
     for (int i = 0; i < totalNumOutputChannels; i++) {
-
-        auto outputBuffer = buffer.getWritePointer(i);
+        auto outputBuffer = buffer.getWritePointer(i);          // outputBuffer is the pointer for the output samples
         for (int j = 0; j < buffer.getNumSamples(); j++)
-            outputBuffer[j] = 0.8 * block.getSample(i, j) + 0.1 * blockChorus.getSample(i, j) + 0.1 * blockPhaser.getSample(i, j);
+            outputBuffer[j] = (float)(0.8 * block.getSample(i, j) + 0.1 * blockChorus.getSample(i, j) + 0.1 * blockPhaser.getSample(i, j));
     }
     
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -290,7 +288,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 // Definition and linking of parameters
 juce::AudioProcessorValueTreeState::ParameterLayout EffectsAudioProcessor::createParameters()
 {
-    std::vector <std::unique_ptr <juce::RangedAudioParameter>> parameters;
+    std::vector <std::unique_ptr <juce::RangedAudioParameter>> parameters;      // parameters is a vector of unique pointers to RangedAudioParameters
 
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusRate", "Chorus Rate", 0.0f, 20.0f, 1.0f));     // ID, name, min_value, max_value, default_value
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("ID_ChorusDepth", "Chorus Depth", 0.0f, 1.0f, 0.5f));
@@ -308,22 +306,23 @@ juce::AudioProcessorValueTreeState::ParameterLayout EffectsAudioProcessor::creat
 }
 
 // Definition of incoming OSC messages response
-
 void EffectsAudioProcessor::oscMessageReceived(const juce::OSCMessage& message)
 {
-    // Reading phaser rate from argument at 6
+    juce::Logger::writeToLog("OSC Message detected");       // checking incoming OSC messages
+
+    // Reading the phaser rate from argument at 6 (if not NaN)
     if (!std::isnan(message[6].getFloat32())) {
-        phaserRate = message[6].getFloat32();
-        juce::Logger::writeToLog("phaserRate : " + juce::String(phaserRate));
+        phaserRate = message[6].getFloat32();       // getFloat32() converts a juce::OSCMessage into a float
+        juce::Logger::writeToLog("phaserRate : " + juce::String(message[6].getFloat32()));
     }
     
-    // Reading chorus feedback from argument at 8
+    // Reading the chorus feedback from argument at 8 (if not NaN)
     if (!std::isnan(message[8].getFloat32())) {
         chorusFeedback = message[8].getFloat32();
-        juce::Logger::writeToLog("chorusFeedback : " + juce::String(chorusFeedback));
+        juce::Logger::writeToLog("chorusFeedback : " + juce::String(message[8].getFloat32()));
     }
 
-    // Displaying incoming OSC messages here
+    // Displaying the incoming OSC messages
     juce::String address = message.getAddressPattern().toString();
     juce::String args;
     for (int i = 0; i < message.size(); ++i) {
@@ -333,7 +332,6 @@ void EffectsAudioProcessor::oscMessageReceived(const juce::OSCMessage& message)
 }
 
 // Error message display
-
 void EffectsAudioProcessor::showConnectionErrorMessage(const juce::String& messageText)
 {
     juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, "Connection error", messageText, "OK");
