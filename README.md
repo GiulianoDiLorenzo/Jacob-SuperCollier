@@ -36,9 +36,7 @@ graph LR
     end
 ```
 
-You may appreciate a demonstration video:
-
-(VIDEO)
+You may find a demonstration video in the repository.
 
 ## What do you need?
 
