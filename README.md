@@ -55,7 +55,7 @@ This system consists of:
 
 ```mermaid
 graph LR 
-    Sensors --> Synth Properties
+    Sensors --> Synth_Properties
     
     subgraph Properties
         note
@@ -74,9 +74,9 @@ SynthDef"\synth" -->|effectBus| SynthDef"\FX"
 
 SynthDef"\FX" --> VAC
 
-Sensors --> FX properties
+Sensors --> FX_properties
 
-subgraph FX Properties
+subgraph FX_Properties
     room
     pre delay
     end
