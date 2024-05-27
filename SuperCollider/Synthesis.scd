@@ -153,8 +153,9 @@ OSCdef(\receiver, {
 	//("OSC incoming message: " ++ msg).postln;
 	//("Coming from address " ++ addr ++ " and port " ++ port).postln;
 
+	// Panning at msg[1]
 	if (msg[1].isNaN == false){
-		//("Panning: " ++ msg[1]).postln;
+		// Setting pan for each Synth instance
 		~notes.keysValuesDo{
 			|key, value|
 
@@ -162,8 +163,9 @@ OSCdef(\receiver, {
 		};
 	};
 
+	// Mix at msg[2]
 	if (msg[2].isNaN == false){
-		//("Mix: " ++ msg[2]).postln;
+		// Setting mix for each Synth instance
 		~notes.keysValuesDo{
 			|key, value|
 
@@ -171,44 +173,44 @@ OSCdef(\receiver, {
 		};
 	};
 
+	// Room at msg[3]
 	if (msg[3].isNaN == false){
-		//("Room: " ++ msg[3]).postln;
+		// Setting room for ~effectSynth
 		~effectSynth.set(\room, msg[3]);
 	};
 
+	// Volume at msg[4]
 	if (msg[4].isNaN == false){
-		//("Volume: " ++ msg[4]).postln;
+		// Setting volume for each Synth instance
 		~notes.keysValuesDo{
 			|key, value|
 
+			// Linear mapping from [0, 20] to [0.0, 1.0]
 			value.set(\volume, (msg[4] + 20).linlin(0.5, 19.6, 0.0, 1.0));
 		};
 	};
 
-	// Filter freq (chorus rate) -> msg[5]
-
-	// Pitch shift - in semitones
+	// Pitch shift at msg[6]
 	if (msg[6].isNaN == false && msg[6] != ~lastPitchShift){
-		//("Pitch shift from " ++ msg[6] ++ " to " ++ round(msg[6])).postln;
+		// Updating ~lastPitchShift
 		~lastPitchShift = msg[6];
 
+		// Setting shifted note for each Synth instance
 		~notes.keysValuesDo{
 			|key, value|
 			var shift;
 
 			value.get(\note, {
 				|item|
-				//shift = item;
-
-				//("Shift " ++ item ++ " new note " ++ item + msg[6]).postln;
+				
 				value.set(\note, item + msg[6]);
 			});
 		};
 	};
 
-	// Reverb decay in ms (pre-delay?)
+	// Reverb pre-delay at msg[8]
 	if (msg[8].isNaN == false) {
-		//("Reverb decay: " ++ msg[8]).postln;
+		// Setting preDelay for ~effectSynth
 		~effectSynth.set(\preDelay, msg[8]);
 	};
 
