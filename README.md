@@ -74,7 +74,9 @@ SynthDef"\synth" -->|effectBus| SynthDef"\FX"
 
 SynthDef"\FX" --> VAC
 
-Sensors --> FX_Properties
+Sensors --> FX_Properties 
+
+FX_Properties --> SynthDef"\FX"
 
 subgraph FX_Properties
     room
