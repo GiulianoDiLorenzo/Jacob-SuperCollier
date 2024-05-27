@@ -130,9 +130,10 @@ Finally, in order to use every components in this repository, you need to follow
 
 ## Project's limitations
 
-As of now, the JUCE code receives correctly the Processing's OSC messages but no modifications occurs in the plugin's GUI, only SuperCollider is effectively responsive to the dancer.
+As of now, the JUCE code correctly receives the Processing's OSC messages but no modifications occur in the plugin's GUI, only SuperCollider is effectively responsive to the dancer.
 Moreover, the accelerometer we used for this project is actually closer to a gyroscope.
-The dancer's movements are not interpreted as we'd like them to be. Indeed, the sensor's inclination is the prevalent modifier.
+The dancer's movements are not interpreted as we'd like them to be.
+Indeed, the sensor's inclination is the prevalent modifier.
 
 The heart rate we used also seems to read BPM values lower than 75.
 Indeed, after several trials, the detected value never exceeded 75 BPM even when the dancer was cardiacally stressed.
@@ -145,7 +146,7 @@ In alternative, the sensors behaviour can be kept and only change how the measur
 
 Besides, the JUCE script also needs to modify the modulations' parameters as given in the OSC messages.
 A way to fix this problem may consist in using `juce::Value`, `.referTo()` and `.getValueObject()`.
-On the other hand, supposing the problematic was given by the conflict between incoming OSC messages and the continuous reading (by the `AudioProcessorValueTreeState`) of the sliders, a solution including an `AudioProcessorValueTreeState::Listener` was introduced.
+On the other hand, supposing the problematic was given by the conflict between incoming OSC messages and the continuous reading (by the `AudioProcessorValueTreeState`) of the sliders, an attempt including an `AudioProcessorValueTreeState::Listener` was made.
 However we could not manage to fix it before the deadline.
 
 Moreover, it would be interesting to find a better packaging for the Arduino board and its sensors to reduce the discomfort of the actual setup.
