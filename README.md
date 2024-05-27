@@ -57,7 +57,7 @@ This system consists of:
 graph LR 
     Sensors --> Synth_Properties
     
-    subgraph Properties
+    subgraph Synth_Properties
         note
         vel
         pan 
@@ -74,7 +74,7 @@ SynthDef"\synth" -->|effectBus| SynthDef"\FX"
 
 SynthDef"\FX" --> VAC
 
-Sensors --> FX_properties
+Sensors --> FX_Properties
 
 subgraph FX_Properties
     room
