@@ -5,9 +5,9 @@ Through various sensors, the dancer movements can determine how the sound proces
 
 ```mermaid
 graph LR
-    Dancer -->|sensors| Sensors
-    Sensors -->|sensors| Arduino
-    Arduino -->|serial| Processing
+    Dancer --> Sensors
+    Sensors --> Arduino
+    Arduino --> Processing
     
     Processing -->|OSC| OSC_Split
     OSC_Split -->|param| JUCE
