@@ -54,10 +54,13 @@ This system consists of:
  * a sound synthesis module made in SuperCollider
 
 ```mermaid
-  graph LR 
-    MIDI -->|frequency| SawOsc
-
-
+graph LR 
+    Sensors --> note
+    Sensors --> vel
+    Sensors --> pan
+    Sensors --> mix
+    Sensors --> volume
+    
     
 ```
 
