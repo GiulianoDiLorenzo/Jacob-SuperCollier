@@ -12,7 +12,6 @@ graph LR
     Processing -->|OSC| SuperCollider
     Processing -->|OSC| Juce
     
-    Musician --> MIDI_Input
     MIDI_Input --> SuperCollider
     SuperCollider -->|synth| Juce
     
@@ -24,8 +23,13 @@ graph LR
         Sensors
     end
     
-    subgraph MIDI_System
+    subgraph MIDI System
         Musician --> MIDI_Input
+    end
+
+    subgraph Modulation System
+        SuperCollider
+        Juce
     end
 ```
 
