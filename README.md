@@ -11,12 +11,12 @@ graph LR
     
     Processing -->|OSC| SuperCollider
     Processing -->|OSC| Juce
-
-    SuperCollider -->|param| Juce
-    SuperCollider -->|MIDI| MIDI_Input
-    MIDI_Input -->|USER| USER
     
-    JUCE -->|speaker| Speaker
+    Musician --> MIDI_Input
+    MIDI_Input --> SuperCollider
+    SuperCollider -->|param| Juce
+    
+    Juce -->|speaker| Speaker
 
     subgraph System
         Arduino
