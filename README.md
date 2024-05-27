@@ -60,6 +60,13 @@ graph LR
     Sensors --> pan
     Sensors --> mix
     Sensors --> volume
+
+subgraph Container
+        A[a]
+        B[b]
+        C[c]
+        D[d]
+    end
     
     
 ```
