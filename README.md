@@ -66,7 +66,7 @@ graph LR
     end
 Properties --> SynthDef"\synth"
 
-SynthDef"\synth" --> Dictionary"~notes"
+SynthDef"\synth" --> Dictionary"notes"
 
 SynthDef"\synth" --> VAC
 
