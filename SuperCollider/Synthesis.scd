@@ -10,14 +10,6 @@ MIDIFunc.trace(true);
 // MIDI debugging deactivation
 MIDIFunc.trace(false);
 
-// Speakers calibration
-{PinkNoise.ar(mul: 1) ! 2}.play;
-
-// Stethoscope
-s.scope(rate: \audio, numChannels: 2);
-
-// Output device specification for JUCE plugin
-o.outDevice = "ASIO : Hi-Fi Cable Output";
 
 // SOUND SYNTHESIS FOR MIDI KEYBOARD
 (
@@ -29,13 +21,18 @@ SynthDef(\synth, {
 	// Output signal definition (frequency decay on Note Off "commented")
 	sig = Saw.ar(
 		freq: note.midicps,
-		//freq: note.midicps * EnvGen.kr(
-		//	envelope: Env.asr(attackTime: 0.05, sustainLevel: 1.0, releaseTime: 0.5, curve: 1.0),
-		//	gate: gate,
-		//	doneAction: 0
-		//),
 		mul: vel
 	);
+
+	// Alternative output definition - frequency decay on NoteOff
+	//sig = Saw.ar(
+	//	freq: note.midicps * EnvGen.kr(
+	//		envelope: Env.asr(attackTime: 0.05, sustainLevel: 1.0, releaseTime: 0.5, curve: 1.0),
+	//		gate: gate,
+	//		doneAction: 0
+	//	),
+	//	mul: vel
+	//);
 
 	// Envelope ADSR (gate = 0 closes the Synth)
 	sig = sig * EnvGen.kr(
@@ -100,21 +97,20 @@ SynthDef(\FX, {
 }).add;
 )
 
+
+// SIGNAL PATH AND MIDI
 (
 // Parallel bus
 ~effectBus = Bus.audio(server: s, numChannels: 2);
-//~effectBus.index;
 
 // Signal processing path
 ~effectSynth = Synth(\FX, args: [\inBus: ~effectBus]);
 
-// Dictionary definition of all Synth instances
+// Dictionary definition for all playing Synth instances
 ~notes = Dictionary.new(n: 0);
 
+// Last value of pitch shift (for OSC-based interaction)
 ~lastPitchShift = 0;
-
-// Removing all MIDIdefs
-MIDIdef.freeAll;
 
 // MIDI Note On
 MIDIdef.noteOn(\playNote, {
@@ -138,7 +134,7 @@ MIDIdef.noteOff(\stopNote, {
 	// Deleting the Synth instance from ~notes
 	~notes.removeAt("Synth"++num);
 
-	// Freeing the Synth instance by closing the envelope (gate = 0)
+	// Freeing the Synth instance by closing the ADSR envelope (gate = 0)
 	synth.set(\gate, 0);
 });
 
@@ -147,13 +143,10 @@ MIDIdef(\playNote).permanent_(true);
 MIDIdef(\stopNote).permanent_(true);
 )
 
+
+// OSC communication
 (
-// OSC
-//var processingAdd;
-//processingAdd = NetAddr("127.0.0.1", 53398);
-
-OSCdef.freeAll;
-
+// Response function definition
 OSCdef(\receiver, {
 	|msg, time, addr, port|
 
@@ -222,3 +215,7 @@ OSCdef(\receiver, {
 }, '/Effects_Values'/*, NetAddr("127.0.0.1", 53398)*/);
 
 )
+
+// Output device specification for JUCE plugin
+o = Server.default.options;
+o.outDevice = "ASIO : Hi-Fi Cable Input";
