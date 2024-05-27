@@ -56,12 +56,11 @@ This system consists of:
 ```mermaid
 graph LR 
     Sensors --> Synth_Properties
-    
-    subgraph Synth_Properties
-        note
-        vel
-        pan 
-        mix
+        subgraph Synth_Properties
+            note
+            vel
+            pan 
+            mix
         volume
     end
 
@@ -84,6 +83,8 @@ subgraph FX_Properties
     pre_delay
     end
 
+
+VAC --> Juce
 
 
 
