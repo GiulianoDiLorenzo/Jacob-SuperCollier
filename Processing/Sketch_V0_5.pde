@@ -44,11 +44,11 @@ float r_canv;  // [pixels]
 //=======================//
 float x_off_d, y_off_d, z_off_d;    // [pixels]      arbitrary offset position for the display of the dancer
 float x, y, z;                      // [pixels]      Variables to store the position of the dancer
-float speedX, speedY;               // [m/s]    Variables to store the speed of the dancer
-float accX, accY;                   // [m/s²]   Variables to store the acceleration of the dancer
-float radius;                       // [pixels] Radius of the "dancer"
-float headTopY;                     // [pixels]
-float legBottomY;                   // [pixels]
+float speedX, speedY;               // [m/s]         Variables to store the speed of the dancer
+float accX, accY;                   // [m/s²]        Variables to store the acceleration of the dancer
+float radius;                       // [pixels]      Radius of the "dancer", unused
+float headTopY;                     // [pixels]      Global variable to store the Y-position of the centre of the head of the dancer
+float legBottomY;                   // [pixels]      Global variable to store the Y-position of the lowest point of the dancer
 float dancerHeight = 20;            // [pixels]
 float headSize = 4;                 // [pixels]
 float bodyHeight = 8;               // [pixels]
@@ -128,7 +128,7 @@ public void setup(){
   r_canv = 10;
   
   //=========================================================================================//
-  //Placing the dancer at the centre of the "room", all in pixels except for z (to check later)
+  //Placing the dancer at the centre of the "room", all in pixels except for z
   //=========================================================================================//
   x_off_d = x_off + l/ 2;        
   y_off_d = y_off + w / 2;      
@@ -138,18 +138,18 @@ public void setup(){
   z_off_d = 1.3; // [m]
   z = z_off_d + 1.5;
   
-  //==============================================//
-  //Setting the 'spatial' boundaries of pitch shift
-  //=============================================//
+  //=============================================================================//
+  //Setting the 'spatial' boundaries of pitch shift, see the drawing in the report
+  //==============================================================================//
   x_0_shift_min = l/4;      // [pixels]
   x_0_shift_max = 3*l/4 ;   // [pixels]
   y_0_shift_min = w/4;      // [pixels]
   y_0_shift_max = 3*w/4;    // [pixels]
   
   
-  //===============================//
-  //Initialising the selected options
-  //===============================//
+  //===========================================//
+  //Initialising the selected options, arbitrary
+  //===========================================//
   modX = 0; modY = 1; modZ = 0; modHR = 0;
   
   
@@ -173,8 +173,6 @@ public void setup(){
   rev_pre_delay = 0.010;           // [s]  , default value in JUCE
   chorus_fb = 0.0;                 // [-]
   oscillation_range = 0.;
-  
-  //delay(1000);  //Delay to make sure that calibration is done when we first display the GUI
 }
 
 public void draw(){
@@ -195,8 +193,6 @@ public void draw(){
   fill(0); //Black
   drawDancer(x, y);
   fill(255); //White
-  //fill(0); //Black
-  //ellipse(x, y, radius, radius);
   
   // Updating the dancer's position
   x += accXInput * timeStep * timeStep;   // [pixels]
@@ -269,6 +265,7 @@ void change_X_pos_mapping(){
   // Change the selected parameters for X - position
   // We assume that modX = {0, 1, 2, 3}
   //This function changes the appropriate modulation effect, depending on the selected option and on the values provided by the dancer's sensors
+  // See the report for more details regarding the details of the linear relationship
   if (modX == 0){
     b = -1 - 2 * x_off/  l;
     a = 2 / l;
@@ -302,6 +299,7 @@ void change_Y_pos_mapping(){
   // Change the selected parameters for Y - position
   // We assume that modY = {0, 1, 2, 3}
   //This function changes the appropriate modulation effect, depending on the selected option and on the values provided by the dancer's sensors
+  // See the report for more details regarding the details of the linear relationship
   if (modY == 0){
     b = -1 - 2 * y_off/ w;
     a =   2 / w;
@@ -335,7 +333,7 @@ void change_other_mod(){
   // We assume that modZ = {0, 1, 2}
   //This function changes the appropriate modulation effect, depending on the selected option and on the values provided by the dancer's sensors
   //For now, we are thresholding the pitch shift, but this might change later
-  
+  // See the report for more details regarding the details of the linear relationship
   if (modZ == 0){
     if ((x >= x_0_shift_min + x_off) && (x <= x_0_shift_max  + x_off) && (y >= y_0_shift_min + y_off) && (y <= y_0_shift_max  + y_off) ){
       //no pitch_shift
@@ -367,6 +365,7 @@ void change_HR_mapping(){
   // Change the selected parameters for HR value
   // We assume that modHR = {0, 1, 2}
   //This function changes the appropriate modulation effect, depending on the selected option and on the values provided by the dancer's sensors
+  // See the report for more details regarding the details of the linear relationship
   if (modHR == 0){
     b_filter = min_cut_off_freq;
     a_filter = (max_cut_off_freq - min_cut_off_freq) / max_BPM_Hz;
@@ -381,6 +380,7 @@ void change_HR_mapping(){
     //NB : In JUCE, the pahser we use has a rate in the range [0;15] Hz
   }
   else if (modHR == 2){
+    // the heart rate immediately gives the pre delay  
     rev_pre_delay = (1000/HRInput);
     //println("reverb pre delay = " + rev_pre_delay + "s");
   }
@@ -518,7 +518,7 @@ void setNan() {
 
 
 void drawDancer(float x, float y) {
-
+  // Jacob SuperCllier super dancer
 
   // Calculate the y position for the top and bottom of the dancer
   headTopY = y - (dancerHeight / 2) - (headSize / 2);
