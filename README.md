@@ -144,8 +144,8 @@ Acquiring better sensors might solve a lot of the issues we faced.
 In alternative, the sensors behaviour can be kept and only change how the measured values influence the signal processing.
 
 Besides, the JUCE script also needs to modify the modulations' parameters as given in the OSC messages.
-A way to fix this problem consisted in using `juce::Value`, `.referTo()` and `.getValueObject()`.
-On the other hand, supposing the problematic was given by the conflict between incoming OSC messages and the continue reading (by the `AudioProcessorValueTreeState`) of the sliders, a solution including an `AudioProcessorValueTreeState::Listener` was introduced.
+A way to fix this problem may consist in using `juce::Value`, `.referTo()` and `.getValueObject()`.
+On the other hand, supposing the problematic was given by the conflict between incoming OSC messages and the continuous reading (by the `AudioProcessorValueTreeState`) of the sliders, a solution including an `AudioProcessorValueTreeState::Listener` was introduced.
 However we could not manage to fix it before the deadline.
 
 Moreover, it would be interesting to find a better packaging for the Arduino board and its sensors to reduce the discomfort of the actual setup.
