@@ -57,31 +57,7 @@ This system consists of:
     MIDI(MIDI Note/Velocity) -->|frequency| SawOsc[\"SawOsc\"]
     SawOsc --> EnvADSR[\"Env.adsr (amp)\"] --> Pan2Dry[\"Pan2 (stereo)\"]
 
-    MIDI -->|trigger| PinkNoise[\"PinkNoise\"]
-    PinkNoise --> EnvPerc[\"Env.perc (amp)\"] --> Pan2Wet[\"Pan2 (stereo)\"]
-
-    Pan2Dry -->|Dry (%)| OutDry[\"Out [0,1]\"]
-
-    Pan2Dry -->|Wet (%)| effectBus
-    Pan2Wet --> effectBus
-
-    subgraph Synth
-        SawOsc
-        EnvADSR
-        Pan2Dry
-        PinkNoise
-        EnvPerc
-        Pan2Wet
-        effectBus
-    end
-
-    subgraph FX
-        effectBus --> DelayN[\"DelayN (pre-delay)\"] --> HPFLPF[\"HPF-LPF (bandpass)\"] --> FreeVerb2[\"FreeVerb2 (reverb)\"] --> OutWet[\"Out [0,1]\"]
-    end
-
-    OutDry -->|directly to| HardwareOut[\"Hardware Output (0,1)\"]
-
-    effectBus -->|parallel to| effectSynth[\"effectSynth (FX)\"] --> OutWet --> HardwareOut
+    
 ```
 
  * a sound effects module made in JUCE
